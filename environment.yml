@@ -1,8 +1,9 @@
-name: <repo-name>
+name: sumsim
 channels:
   - conda-forge
   - defaults
 dependencies:
+- python=3.13.2
   - pip
   - pip:
       - numpy
