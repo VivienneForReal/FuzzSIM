@@ -1,4 +1,4 @@
-name: sumsim
+name: fuzzsim
 channels:
   - conda-forge
   - defaults
