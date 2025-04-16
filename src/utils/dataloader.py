@@ -47,7 +47,7 @@ def generate_uniform_dataset(p, n, binf=-1, bsup=1):
     """ int * int * float^2 -> tuple[ndarray, ndarray]
         Hyp: n est pair
         p: nombre de dimensions de la description
-        n: nombre d'exemples de HCAque classe
+        n: nombre d'exemples de chaque classe
         les valeurs générées uniformément sont dans [binf,bsup]
     """
     

@@ -5,10 +5,12 @@ import numpy as np
 from src.classif.base import Classifier
 
 class KNN(Classifier):
-    """ Classe pour représenter un classifyur par K plus proches voisins.
+    """ Classe pour représenter un classifieur par K plus proches voisins.
         Cette classe hérite de la classe Classifier
     """
 
+    # ATTENTION : il faut compléter cette classe avant de l'utiliser !
+    
     def __init__(self, input_dimension, k):
         """ Constructeur de KNN
             Argument:
@@ -20,14 +22,16 @@ class KNN(Classifier):
         self.k = k
 
     def score(self, x):
+        from collections import Counter
         """ Rend la proportion des labels parmi les k ppv de x (valeur réelle)
             x: une description : un ndarray
         """
         distances = np.sqrt(np.sum((self.desc_set - x) ** 2, axis=1))
         nearest_indices = np.argsort(distances)[:self.k]
         nearest_labels = self.label_set[nearest_indices]
-        label_counts = np.bincount(nearest_labels, minlength=10)
-        return np.argmax(label_counts)
+        
+        label_counts = Counter(nearest_labels)
+        return max(label_counts.items(), key=lambda item: (item[1], -item[0]))[0]
 
     def predict(self, x):
         """ Rend la prédiction sur x (label de 0 à 9)
