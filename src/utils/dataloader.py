@@ -49,29 +49,30 @@ def generate_train_test(desc_set, label_set, n_per_class):
     )
 
 
-def generate_uniform_dataset(p, n, binf=-1, bsup=1):
-    """ 
-    Generate a uniformly distributed dataset for two classes (-1 and +1).
-    
-    :param p: Number of dimensions (features)
-    :param n: Number of samples per class (must be even)
-    :param binf: Lower bound of uniform distribution
-    :param bsup: Upper bound of uniform distribution
+def generate_uniform_dataset_multiclass(p, n_per_class, classes, binf=-1, bsup=1):
+    """
+    Generate a uniformly distributed dataset for multiple classes.
+
+    :param p: Number of features
+    :param n_per_class: Number of samples per class
+    :param classes: Iterable of class labels (can include -9 to 9, including 0)
+    :param binf: Lower bound for uniform distribution
+    :param bsup: Upper bound for uniform distribution
     :return: Tuple (data_desc, data_labels)
     """
-    assert n % 2 == 0, "n must be even"
+    data_desc = []
+    data_labels = []
 
-    # Generate n samples for each class
-    class_neg = np.random.uniform(binf, bsup, (n, p))
-    class_pos = np.random.uniform(binf, bsup, (n, p))
+    for label in classes:
+        samples = np.random.uniform(binf, bsup, (n_per_class, p))
+        data_desc.append(samples)
+        data_labels.extend([label] * n_per_class)
 
-    # Concatenate samples
-    data_desc = np.vstack((class_neg, class_pos))
-
-    # Create labels
-    data_labels = np.array([-1]*n + [1]*n)
+    data_desc = np.vstack(data_desc)
+    data_labels = np.array(data_labels)
 
     return data_desc, data_labels
+
 
     
 
@@ -85,6 +86,29 @@ def generate_gaussian_dataset(centers, sigmas, labels, nb_points_per_class):
     :param nb_points_per_class: Number of points to generate per class
     :return: Tuple (data_desc, data_labels)
     """
+
+    # Check dim
+    if len(centers) != len(sigmas) or len(centers) != len(labels):
+        raise ValueError("centers, sigmas, and labels must have the same length")
+    if len(centers) == 0:
+        raise ValueError("centers, sigmas, and labels cannot be empty")
+    if len(centers[0]) != len(sigmas[0]):
+        raise ValueError("centers and sigmas must have the same dimension")
+    if len(centers[0]) != len(labels):
+        raise ValueError("centers and labels must have the same dimension")
+        
+    # Convert to numpy arrays
+    centers = np.array(centers)
+    sigmas = np.array(sigmas)
+    labels = np.array(labels)
+
+    # Check if all covariance matrices are square and symmetric
+    for sigma in sigmas:
+        if sigma.shape[0] != sigma.shape[1]:
+            raise ValueError("Covariance matrices must be square")
+        if not np.allclose(sigma, sigma.T):
+            raise ValueError("Covariance matrices must be symmetric")
+        
     data = []
     data_labels = []
     

@@ -1,45 +1,58 @@
 import numpy as np
 import pandas as pd 
+from itertools import combinations
 
 # Side function
-def create_tup_from_list(elem_list):    
-    """Create tuple from a list of elements
-    Hyp: element in elem_list are not unique
+# def create_tup_from_list(elem_list):    
+#     """Create tuple from a list of elements
+#     Hyp: element in elem_list are not unique
     
-    Args:
-        elem_list (ndarray): List of n elements
+#     Args:
+#         elem_list (ndarray): List of n elements
         
-    Returns:
-        tuple: Tuple of unique elements
-    """
-    return tuple(np.unique(elem_list))
+#     Returns:
+#         tuple: Tuple of unique elements
+#     """
+#     return tuple(np.unique(elem_list))
 
 # Set enumeration
-def enumerate_tup(tup, seen=None):
-    """
-    Recursively enumerate all possible sub-tuples (by removing elements) from a given tuple.
+# version 1
+# def enumerate_tup(tup, seen=None):
+#     """
+#     Recursively enumerate all possible sub-tuples (by removing elements) from a given tuple.
     
-    :param tup: Input tuple
-    :param seen: Set to store unique sub-tuples
-    :return: Set of tuples
-    """
-    if seen is None:
-        seen = set()
+#     :param tup: Input tuple
+#     :param seen: Set to store unique sub-tuples
+#     :return: Set of tuples
+#     """
+#     if seen is None:
+#         seen = set()
     
-    # Add the current tuple to the set
-    seen.add(tup)
+#     # Add the current tuple to the set
+#     seen.add(tup)
     
-    if len(tup) <= 1:
-        return seen
+#     if len(tup) <= 1:
+#         return seen
 
-    for i in range(len(tup)):
-        # Create a new tuple by removing the i-th element
-        sub_tup = tup[:i] + tup[i+1:]
+#     for i in range(len(tup)):
+#         # Create a new tuple by removing the i-th element
+#         sub_tup = tup[:i] + tup[i+1:]
         
-        if sub_tup not in seen:
-            enumerate_tup(sub_tup, seen)
+#         if sub_tup not in seen:
+#             enumerate_tup(sub_tup, seen)
     
-    return seen
+#     return seen
+
+# version 2
+def enumerate_tup(lst):
+    """
+    Enumerate the tuples in the list.
+    """
+    tmp = []
+    for i in range(len(lst)+1):
+        tmp += list(combinations(lst, i))
+    return tmp
+
 
 # Set manipulation functions
 def create_set(elem_list):
