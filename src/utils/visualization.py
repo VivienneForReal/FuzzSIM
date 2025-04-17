@@ -7,36 +7,55 @@ import numpy as np
 import pandas as pd
 import os 
 
-def plot2DSet(desc,labels):    
-    """ ndarray * ndarray -> affichage
-        la fonction doit utiliser la couleur 'red' pour la classe -1 et 'blue' pour la +1
+
+def plot2DSet(desc, labels):
     """
-    # COMPLETER ICI (remplacer la ligne suivante)
+    Affiche un ensemble 2D avec une couleur différente pour chaque classe.
+    Compatible avec plusieurs labels (pas seulement -1/+1).
+    """
+    unique_labels = np.unique(labels)
+    colors = plt.cm.get_cmap("tab10", len(unique_labels))  # Up to 10 classes by default
+
+    for idx, label in enumerate(unique_labels):
+        class_points = desc[labels == label]
+        plt.scatter(class_points[:, 0], class_points[:, 1],
+                    label=f'Classe {label}', color=colors(idx), marker='o')
     
-    # Extraction des exemples de classe -1:
-    data_negatifs = desc[labels == -1]
-    # Extraction des exemples de classe +1:
-    data_positifs = desc[labels == +1]
-    
-    # Affichage de l'ensemble des exemples :
-    plt.scatter(data_negatifs[:,0],data_negatifs[:,1],marker='o', color="red") # 'o' rouge pour la classe -1
-    plt.scatter(data_positifs[:,0],data_positifs[:,1],marker='x', color="blue") # 'x' bleu pour la classe +1
+    plt.legend()
+    plt.xlabel('x1')
+    plt.ylabel('x2')
+    plt.title('Représentation 2D multi-classe')
+    plt.grid(True)
 
 
-def plot_frontier(desc_set, label_set, classifier, step=30):
-    """ desc_set * label_set * Classifier * int -> NoneType
-        Remarque: le 4e argument est optionnel et donne la "résolution" du tracé: plus il est important
-        et plus le tracé de la frontière sera précis.        
-        Cette fonction affiche la frontière de décision associée au classifieur
+
+def plot_frontier(desc_set, label_set, classifier, step=100):
     """
-    mmax=desc_set.max(0)
-    mmin=desc_set.min(0)
-    x1grid,x2grid=np.meshgrid(np.linspace(mmin[0],mmax[0],step),np.linspace(mmin[1],mmax[1],step))
-    grid=np.hstack((x1grid.reshape(x1grid.size,1),x2grid.reshape(x2grid.size,1)))
-    
-    # calcul de la prediction pour chaque point de la grille
-    res=np.array([classifier.predict(grid[i,:]) for i in range(len(grid)) ])
-    res=res.reshape(x1grid.shape)
-    # tracer des frontieres
-    # colors[0] est la couleur des -1 et colors[1] est la couleur des +1
-    plt.contourf(x1grid,x2grid,res,colors=["darksalmon","skyblue"],levels=[-1000,0,1000])
+    Affiche les frontières de décision pour un classifieur multi-classe.
+
+    Args:
+        desc_set: données 2D
+        label_set: labels (multi-classe possible)
+        classifier: classifieur avec .predict()
+        step: résolution du maillage
+    """
+    mmax = desc_set.max(axis=0) + 0.5
+    mmin = desc_set.min(axis=0) - 0.5
+
+    x1grid, x2grid = np.meshgrid(
+        np.linspace(mmin[0], mmax[0], step),
+        np.linspace(mmin[1], mmax[1], step)
+    )
+    grid = np.c_[x1grid.ravel(), x2grid.ravel()]
+
+    predictions = classifier.predict(grid)
+    predictions = predictions.reshape(x1grid.shape)
+
+    # Use colormap for multiple classes
+    unique_labels = np.unique(label_set)
+    cmap = plt.cm.get_cmap("tab10", len(unique_labels))
+
+    plt.contourf(x1grid, x2grid, predictions, alpha=0.3, cmap=cmap)
+
+    # Superpose les données
+    plot2DSet(desc_set, label_set)
