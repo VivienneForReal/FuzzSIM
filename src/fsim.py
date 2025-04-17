@@ -57,6 +57,33 @@ def generate_capacity(lst_val, nb_x):
     tmp[1:len(tmp)] = sorted(tmp[1:len(tmp)], reverse=False)
     return tmp
 
+def arg_val(lst_val, val):
+    """
+    Get the index of the value in the list
+    :param lst_val: list of values
+    :param val: value to find
+    :return: index of the value in the list
+    """
+    for i in range(len(lst_val)):
+        if lst_val[i] == val:
+            return i
+    return -1       # not found
+
+def compute_capacity(lst_val, capacity, val):
+    """
+    Compute the capacity of the dataset
+    :param lst_val: list of values
+    :param capacity: capacity of the dataset
+    :param val: value to find
+    :return: capacity of the value
+    """
+    index = arg_val(lst_val, val)
+    if index == -1:
+        return 0
+    else:
+        return capacity[index]
+
+
 # TODO: Finish Choquet function
 def Choquet(f, lst_val):
     """
