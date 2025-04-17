@@ -42,7 +42,7 @@ def generate_capacity_unit(lst_val, nb_x):
     else: 
         return np.random.rand()
 
-def generate_capacity_elem(lst_val, nb_x):
+def generate_capacity(lst_val, nb_x):
     """
     Generate the capacity of the dataset
     :param lst_val: list of values
@@ -57,24 +57,23 @@ def generate_capacity_elem(lst_val, nb_x):
     tmp[1:len(tmp)] = sorted(tmp[1:len(tmp)], reverse=False)
     return tmp
 
-def generate_capacity_batch(lst_val, nb_x):
+# TODO: Finish Choquet function
+def Choquet(f, lst_val):
     """
-    Generate the capacity of the dataset
+    Choquet function
+    :param f: function
     :param lst_val: list of values
-    :param nb_x: number of x values
     :return: list of values
     """
-    tmp = []
-    for i in range(len(lst_val)):
-        tmp.append(generate_capacity_elem(lst_val[i], nb_x))
-    return tmp
+    pass 
 
-class FuzzSIM():
+# TODO: Add variants of the FuzzSIM class
+class FuzzSIM:
     """
     Class for Fuzzy SIM (Similarity) calculations.
     """
 
-    def __init__(self, desc_set, label_set):
+    def __init__(self, desc_set, label_set): 
         """
         Initialize the FuzzSIM class with a dataset and its labels.
 
@@ -84,6 +83,11 @@ class FuzzSIM():
         self.desc_set = desc_set
         self.label_set = label_set
         self.enumerated_batch = enumerate_permute_batch(desc_set)
-        self.capacity = generate_capacity_batch(self.enumerated_batch, len(desc_set[0]))
-
+        self.capacity = generate_capacity(self.enumerated_batch, len(desc_set[0]))
     
+    def score(self,x):
+        """ rend le score de prédiction sur x (valeur réelle)
+            x: une description
+        """
+        pass
+        raise NotImplementedError("Please Implement this method")

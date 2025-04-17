@@ -46,12 +46,7 @@ class Classifier:
             label_set: ndarray avec les labels correspondants
             Hypothèse: desc_set et label_set ont le même nombre de lignes
         """
-        # ------------------------------
-        # COMPLETER CETTE FONCTION ICI : 
-        
-        # ............
-        
-        # ------------------------------
+
         """pred = []
         print(len(desc_set))
         for i in range(len(desc_set)) : 
