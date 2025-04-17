@@ -57,7 +57,18 @@ def generate_capacity(lst_val, nb_x):
     tmp[1:len(tmp)] = sorted(tmp[1:len(tmp)], reverse=False)
     return tmp
 
-class FuzzSIM():
+# TODO: Finish Choquet function
+def Choquet(f, lst_val):
+    """
+    Choquet function
+    :param f: function
+    :param lst_val: list of values
+    :return: list of values
+    """
+    pass 
+
+# TODO: Add variants of the FuzzSIM class
+class FuzzSIM:
     """
     Class for Fuzzy SIM (Similarity) calculations.
     """
@@ -73,5 +84,10 @@ class FuzzSIM():
         self.label_set = label_set
         self.enumerated_batch = enumerate_permute_batch(desc_set)
         self.capacity = generate_capacity(self.enumerated_batch, len(desc_set[0]))
-
     
+    def score(self,x):
+        """ rend le score de prédiction sur x (valeur réelle)
+            x: une description
+        """
+        pass
+        raise NotImplementedError("Please Implement this method")
