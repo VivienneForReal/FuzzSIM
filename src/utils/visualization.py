@@ -29,7 +29,7 @@ def plot2DSet(desc, labels):
 
 
 
-def plot_frontier(desc_set, label_set, classifier, step=100):
+def plot_frontiers(desc_set, label_set, classifier, step=100):
     """
     Affiche les frontières de décision pour un classifieur multi-classe.
 
