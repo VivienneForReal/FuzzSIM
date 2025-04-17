@@ -84,5 +84,6 @@ class FuzzSIM():
         self.desc_set = desc_set
         self.label_set = label_set
         self.enumerated_batch = enumerate_permute_batch(desc_set)
+        self.capacity = generate_capacity_batch(self.enumerated_batch, len(desc_set[0]))
 
     
