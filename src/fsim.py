@@ -85,14 +85,41 @@ def compute_capacity(lst_val, capacity, val):
 
 
 # TODO: Finish Choquet function
-def Choquet(f, lst_val):
+def Choquet(capacity, observation, permutation):
     """
-    Choquet function
-    :param f: function
-    :param lst_val: list of values
-    :return: list of values
+    Compute the Choquet integral of the dataset
+    :param capacity: capacity of the dataset
+    :param observation: observation to compute
+    :param permutation: permutation of the dataset
+    :return: Choquet integral of the dataset
     """
-    pass 
+    # Define choquet sum
+    choquet = 0
+    perm_max = permutation[-1]
+
+    for i in reversed(range(len(observation))):
+
+        val_check = perm_max[:i+1]
+
+        # Compute the capacity of the observation
+        capacity_observation_i = compute_capacity(
+            lst_val=permutation,
+            capacity=capacity,
+            val=val_check
+        )
+        if i == len(observation) - 1:
+            capacity_observation_i_1 = 0        # Case of the last element -> empty set
+        else:
+            val_check2 = perm_max[:i]
+            capacity_observation_i_1 = compute_capacity(
+                lst_val=permutation,
+                capacity=capacity,
+                val=val_check2
+            )
+
+        # Compute the choquet sum
+        choquet += (capacity_observation_i - capacity_observation_i_1) * observation[i]
+    return float(choquet)
 
 # TODO: Add variants of the FuzzSIM class
 class FuzzSIM:
