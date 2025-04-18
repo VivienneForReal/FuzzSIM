@@ -1,49 +1,45 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import pandas as pd 
 from itertools import combinations
 
-# Side function
-# def create_tup_from_list(elem_list):    
-#     """Create tuple from a list of elements
-#     Hyp: element in elem_list are not unique
-    
-#     Args:
-#         elem_list (ndarray): List of n elements
-        
-#     Returns:
-#         tuple: Tuple of unique elements
-#     """
-#     return tuple(np.unique(elem_list))
+from src.utils.utils import *
 
-# Set enumeration
-# version 1
-# def enumerate_tup(tup, seen=None):
-#     """
-#     Recursively enumerate all possible sub-tuples (by removing elements) from a given tuple.
-    
-#     :param tup: Input tuple
-#     :param seen: Set to store unique sub-tuples
-#     :return: Set of tuples
-#     """
-#     if seen is None:
-#         seen = set()
-    
-#     # Add the current tuple to the set
-#     seen.add(tup)
-    
-#     if len(tup) <= 1:
-#         return seen
+def enumerate_permute_unit(X):
+    """
+    Generate all possible permutations of the input dataset.
+    Hyp: all elements returned are ordered
 
-#     for i in range(len(tup)):
-#         # Create a new tuple by removing the i-th element
-#         sub_tup = tup[:i] + tup[i+1:]
-        
-#         if sub_tup not in seen:
-#             enumerate_tup(sub_tup, seen)
+    :param X: Input dataset (features).
+    :return: List of all permutations of the dataset.
+    """
+    tmp = list_tuple_to_list_list(
+        enumerate_tup(
+            convert_to_int(
+                np.argsort(X)
+            )
+        )
+    )
+    return tmp
     
-#     return seen
 
-# version 2
+def enumerate_permute_batch(desc_set):
+    """
+    Generate all possible permutations of the input dataset.
+    Hyp: all elements returned are ordered
+
+    :param desc_set: Input dataset (features).
+    :return: List of all permutations of the dataset.
+    """
+    tmp = []
+    for i in range(desc_set.shape[0]):
+        test_elem = desc_set[i]
+        permute = np.argsort(test_elem)
+        tmp.append(list_tuple_to_list_list(enumerate_tup(convert_to_int(permute))))
+
+    return tmp
+
 def enumerate_tup(lst):
     """
     Enumerate the tuples in the list.
