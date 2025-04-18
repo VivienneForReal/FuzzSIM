@@ -62,7 +62,7 @@ class SimLevel1(FuzzSIM):
     def score(self):
         intersection = Choquet(s_intersection(self.X, self.Y, mode=self.mode), mu=self.mu)
         union = Choquet(s_union(self.X, self.Y, mode=self.mode), mu=self.mu)
-
+        print(f"Intersection: {intersection}, Union: {union}")
         return intersection / union
     
 class SimLevel2(FuzzSIM):

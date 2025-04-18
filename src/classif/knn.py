@@ -47,3 +47,6 @@ class KNN(Classifier):
         """
         self.desc_set = desc_set
         self.label_set = label_set
+
+class KNNFuzz(KNN):
+    pass
