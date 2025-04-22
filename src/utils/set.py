@@ -24,7 +24,7 @@ def enumerate_permute_unit(X):
     return tmp
     
 
-def enumerate_permute_batch(desc_set):
+def enumerate_permute_batch(X):
     """
     Generate all possible permutations of the input dataset.
     Hyp: all elements returned are ordered
@@ -32,13 +32,14 @@ def enumerate_permute_batch(desc_set):
     :param desc_set: Input dataset (features).
     :return: List of all permutations of the dataset.
     """
-    tmp = []
-    for i in range(desc_set.shape[0]):
-        test_elem = desc_set[i]
-        permute = np.argsort(test_elem)
-        tmp.append(list_tuple_to_list_list(enumerate_tup(convert_to_int_lst(permute))))
+    return list_tuple_to_list_list(enumerate_tup(convert_to_int_lst(np.argsort(X))))
+    # tmp = []
+    # for i in range(desc_set.shape[0]):
+    #     test_elem = desc_set[i]
+    #     permute = np.argsort(test_elem)
+    #     tmp.append(list_tuple_to_list_list(enumerate_tup(convert_to_int_lst(permute))))
 
-    return tmp
+    # return tmp
 
 def enumerate_tup(lst):
     """

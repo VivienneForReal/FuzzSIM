@@ -17,7 +17,7 @@ def leave_one_out(C, DS, time_counter=False):
         Xtest, Ytest = Xm[i], Ym[i]
         
         Xapp, Yapp = np.array(list(Xm[:i])+list(Xm[i+1:])), np.array(list(Ym[:i])+list(Ym[i+1:]))
-
+    
         cl = copy.deepcopy(C)
         cl.train(Xapp,Yapp)
 

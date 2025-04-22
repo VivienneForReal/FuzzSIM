@@ -3,7 +3,7 @@
 import numpy as np
 
 from src.classif.base import Classifier
-from src.fuzz.sim import SimLevel1
+from src.fuzz.sim import *
 
 class KNN(Classifier):
     """ Classe pour représenter un classifieur par K plus proches voisins.
@@ -50,13 +50,14 @@ class KNN(Classifier):
         self.label_set = label_set
 
 class KNNFuzz(KNN):
-    def __init__(self, input_dimension, k=3, sim=SimLevel1):
+    def __init__(self, input_dimension,mu, k=3, sim=SimLevel1):
         """ KNN avec une distance de type fuzz
             k: le nombre de voisins à prendre en compte
             sim: la fonction de similarité à utiliser
         """
         super().__init__(input_dimension=input_dimension, k=k)
         self.sim = sim
+        self.mu = mu
 
     def score(self, x):
         from collections import Counter
@@ -64,7 +65,7 @@ class KNNFuzz(KNN):
             x: une description : un ndarray
         """
         # Compute similarity between x and all points in desc_set
-        similarity = np.array([self.sim(x, desc).score() for desc in self.desc_set])
+        similarity = np.array([self.sim(x, desc, self.mu).score() for desc in self.desc_set])
         # print(f"Similarity: {similarity}")
 
         # distances = np.sqrt(np.sum((self.desc_set - x) ** 2, axis=1))

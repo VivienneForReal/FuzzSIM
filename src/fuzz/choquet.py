@@ -68,6 +68,9 @@ def s_union(X, Y, mode='P'):
     """
     return T_conorm(X, Y, mode=mode)
 
+
+
+# TODO: Check if s_triangle and s_diff are correct
 def s_triangle(X, Y, mode='P'):
     """
     Calculate the capacity of the triangle of two sets of values
@@ -75,10 +78,12 @@ def s_triangle(X, Y, mode='P'):
     :param Y: Second set of values
     :param mode: Type of t-conorm to use (M, P, L)
     :return: Capacity of the difference of the two sets of values
+
+    Hyp: X \ Y takes the values of X that are not in Y and inversely
     """
     return T_conorm(
-        X = set_difference(X, Y),
-        Y = set_difference(Y, X),
+        X = np.array(convert_to_float_lst([x for x in X if x not in Y])),
+        Y = np.array(convert_to_float_lst([y for y in Y if y not in X])),
         mode=mode
     )
 
