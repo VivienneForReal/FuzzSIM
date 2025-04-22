@@ -1,1 +1,1 @@
-from src.classif.knn import KNN 
+from src.classif.knn import KNN, KNNFuzz

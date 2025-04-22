@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-def convert_to_float(lst):
+def convert_to_float_lst(lst):
     return [float(i) for i in lst]
 
-def convert_to_int(lst):
+def convert_to_int_lst(lst):
     return [int(i) for i in lst]
 
 def tuple_to_list(tup):

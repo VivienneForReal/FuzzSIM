@@ -88,14 +88,12 @@ def generate_gaussian_dataset(centers, sigmas, labels, nb_points_per_class):
     """
 
     # Check dim
-    if len(centers) != len(sigmas) or len(centers) != len(labels):
+    if len(centers) != len(sigmas):
         raise ValueError("centers, sigmas, and labels must have the same length")
     if len(centers) == 0:
         raise ValueError("centers, sigmas, and labels cannot be empty")
     if len(centers[0]) != len(sigmas[0]):
         raise ValueError("centers and sigmas must have the same dimension")
-    if len(centers[0]) != len(labels):
-        raise ValueError("centers and labels must have the same dimension")
         
     # Convert to numpy arrays
     centers = np.array(centers)
@@ -122,3 +120,40 @@ def generate_gaussian_dataset(centers, sigmas, labels, nb_points_per_class):
     
     return data, data_labels
 
+
+
+
+def dynamic_generate_positive_gaussian_data(dim, nb_classes, nb_points_per_class, seed=None):
+    """
+    Generates all-positive multivariate Gaussian data.
+
+    :param dim: Number of dimensions
+    :param nb_classes: Number of Gaussian classes
+    :param nb_points_per_class: Number of samples per class
+    :param seed: Optional random seed for reproducibility
+    :return: Tuple (data, labels)
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    # Create centers: spaced out to avoid overlaps
+    centers = [np.full(dim, 5.0 * (i + 1)) for i in range(nb_classes)]
+
+    # Create small positive definite covariance matrices
+    sigmas = []
+    for _ in range(nb_classes):
+        A = np.random.rand(dim, dim) * 0.2
+        sigma = np.dot(A, A.T) + np.eye(dim) * 0.5
+        sigmas.append(sigma)
+
+    labels = list(range(nb_classes))
+
+    # Generate data using your existing function
+    data, data_labels = generate_gaussian_dataset(centers, sigmas, labels, nb_points_per_class)
+
+    # Keep only positive samples
+    positive_mask = np.all(data > 0, axis=1)
+    data = data[positive_mask]
+    data_labels = data_labels[positive_mask]
+
+    return data, data_labels

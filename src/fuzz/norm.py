@@ -12,13 +12,21 @@ from src.utils.utils import convert_to_float
 
 def batch_norm(array):
     """
+    Normalize a batch of data
+    :param array: Batch of data
+    :return: Normalized data
+    """
+    return np.array([norm(x) for x in array])
+
+def norm(X):
+    """
     Calculate t-norm of two sets of values
     :param X: First set of values
     :return: normalized data
     """
-    min_val = min(array)
-    max_val = max(array)
-    normalized_array = [(x - min_val) / (max_val - min_val) for x in array]
+    min_val = min(X)
+    max_val = max(X)
+    normalized_array = [(x - min_val) / (max_val - min_val) for x in X]
     return np.array(convert_to_float(normalized_array))
 
 def T_norm(X, Y, mode='P'):
@@ -63,8 +71,8 @@ def T_conorm(X, Y, mode='P'):
     if mode == 'M':
         return np.maximum(X, Y)
     elif mode == 'P':
-        print("X+Y:", X + Y)
-        print("X*Y:", X * Y)
+        # print("X+Y:", X + Y)
+        # print("X*Y:", X * Y)
         return X + Y - X * Y
     elif mode == 'L':
         return np.minimum(1, X + Y)
