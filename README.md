@@ -6,7 +6,13 @@ FuzzSIM/
 │── src/            
 │   ├── classif/
 │   │   ├── base.py
-│   │   ├── kmm.py              
+│   │   ├── knn.py      
+│   │   ├── eval.py  
+│   ├── fuzz/     
+│   │   ├── capacity.py              
+│   │   ├── choquet.py              
+│   │   ├── norm.py              
+│   │   ├── sim.py              
 │   ├── utils/     
 │   │   ├── dataloader.py              
 │   │   ├── set.py              
