@@ -8,10 +8,8 @@ sns.set_style(style="darkgrid")
 import random
 random.seed(42)
 
-from src.utils.set import enumerate_permute_unit
 from src.fuzz.capacity import generate_capacity
-from src.fuzz.choquet import Choquet, s_intersection, s_union
-
+from src.fuzz.choquet import Choquet, s_intersection, s_union, s_triangle, s_diff
 
 # TODO: Add variants of the FuzzSIM class
 class FuzzSIM:
@@ -19,7 +17,7 @@ class FuzzSIM:
     Class for Fuzzy SIM (Similarity) calculations.
     """
 
-    def __init__(self, X,Y,mode='P'): 
+    def __init__(self, X,Y,mu, mode='P'): 
         """
         Initialize the FuzzSIM class with a dataset and its labels.
 
@@ -29,12 +27,11 @@ class FuzzSIM:
         """
         self.X = X
         self.Y = Y
-        # self.mu = mu
         self.mode = mode
-        self.permute = enumerate_permute_unit(X)
-        self.capacity = generate_capacity(self.permute, len(self.permute))
+        self.permute = 2**len(X) - 1                # Total number of permutations = 2^n - 1
+        self.capacity = mu
     
-    def score(self,x):
+    def score(self, verbose=False):
         """ rend le score de prédiction sur x (valeur réelle)
             x: une description
         """
@@ -47,7 +44,7 @@ class SimLevel1(FuzzSIM):
     Class for Fuzzy SIM Level 1 calculations.
     """
     
-    def __init__(self, X,Y,mode='P'): 
+    def __init__(self, X,Y,mu, mode='P'): 
         """
         Initialize the FuzzSIM Level 1 class with a dataset and its labels.
 
@@ -56,7 +53,7 @@ class SimLevel1(FuzzSIM):
         :param mu: generated capacity.
         :param mode: Type of t-norm to use (M, P, L).
         """
-        super().__init__(X,Y,mode)
+        super().__init__(X,Y,mu, mode)
 
     def score(self, verbose=False):
         intersection = Choquet(s_intersection(self.X, self.Y, mode=self.mode), mu=self.capacity)
@@ -70,7 +67,7 @@ class SimLevel2(FuzzSIM):
     Class for Fuzzy SIM Level 2 calculations.
     """
     
-    def __init__(self, X,Y,mode='P'): 
+    def __init__(self, X,Y,mu, mode='P'): 
         """
         Initialize the FuzzSIM Level 2 class with a dataset and its labels.
 
@@ -79,16 +76,20 @@ class SimLevel2(FuzzSIM):
         :param mu: Membership function.
         :param mode: Type of t-norm to use (M, P, L).
         """
-        super().__init__(X,Y,mode)
-    def score(self):
-        pass 
+        super().__init__(X,Y,mu,mode)
+
+    def score(self, verbose=False):
+        triangle = Choquet(s_triangle(self.X, self.Y, mode=self.mode), mu=self.capacity)
+        intersection = Choquet(s_intersection(self.X, self.Y, mode=self.mode), mu=self.capacity)
+
+        return intersection / (triangle + intersection)
 
 class SimLevel3(FuzzSIM):
     """
     Class for Fuzzy SIM Level 3 calculations.
     """
     
-    def __init__(self, X,Y,mode='P'): 
+    def __init__(self, X,Y,mu, mode='P'): 
         """
         Initialize the FuzzSIM Level 3 class with a dataset and its labels.
 
@@ -97,6 +98,11 @@ class SimLevel3(FuzzSIM):
         :param mu: Membership function.
         :param mode: Type of t-norm to use (M, P, L).
         """
-        super().__init__(X,Y,mode)
+        super().__init__(X,Y,mu,mode)
+        
     def score(self):
-        pass 
+        intersection = Choquet(s_intersection(self.X, self.Y, mode=self.mode), mu=self.capacity)
+        diff = Choquet(s_diff(self.X, self.Y, mode=self.mode, reverse=False), mu=self.capacity)
+        diff_rev = Choquet(s_diff(self.X, self.Y, mode=self.mode, reverse=True), mu=self.capacity)
+
+        return intersection / (diff + diff_rev + intersection)

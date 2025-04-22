@@ -2,7 +2,7 @@
 
 from src.fuzz.capacity import compute_capacity_unit, generate_capacity
 from src.fuzz.norm import T_norm, T_conorm
-from src.utils.set import enumerate_permute_unit
+from src.utils.set import *
 
 # TODO: Finish Choquet function
 def Choquet(obs, mu, mode='P'):
@@ -68,12 +68,37 @@ def s_union(X, Y, mode='P'):
     """
     return T_conorm(X, Y, mode=mode)
 
-def s_difference(X, Y, mode='P', reverse=False):
+def s_triangle(X, Y, mode='P'):
     """
-    Calculate the capacity of the difference of two sets of values
+    Calculate the capacity of the triangle of two sets of values
     :param X: First set of values
     :param Y: Second set of values
     :param mode: Type of t-conorm to use (M, P, L)
     :return: Capacity of the difference of the two sets of values
     """
-    pass 
+    return T_conorm(
+        X = set_difference(X, Y),
+        Y = set_difference(Y, X),
+        mode=mode
+    )
+
+def s_diff(X, Y, mode='P', reverse=False):
+    """
+    Calculate the capacity of the difference of two sets of values
+    :param X: First set of values
+    :param Y: Second set of values
+    :param mode: Type of t-conorm to use (M, P, L)
+    :param reverse: If True, reverse the order of the sets
+    :return: Capacity of the difference of the two sets of values
+
+    Hyp: Y is normalized between 0 and 1, perform (.)^c = 1 - (.)
+    """
+    X_c = 1 - X
+    Y_c = 1 - Y
+
+    if not reverse: 
+        # X \ Y
+        return T_norm(X, Y_c, mode=mode)
+    else:
+        # reverse -> Y \ X
+        return T_norm(Y, X_c, mode=mode)
