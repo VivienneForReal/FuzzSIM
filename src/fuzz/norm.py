@@ -8,7 +8,7 @@ sns.set_style(style="darkgrid")
 import random
 random.seed(42)
 
-from src.utils.utils import convert_to_float
+from src.utils.utils import convert_to_float_lst
 
 def batch_norm(array):
     """
@@ -27,7 +27,7 @@ def norm(X):
     min_val = min(X)
     max_val = max(X)
     normalized_array = [(x - min_val) / (max_val - min_val) for x in X]
-    return np.array(convert_to_float(normalized_array))
+    return np.array(convert_to_float_lst(normalized_array))
 
 def T_norm(X, Y, mode='P'):
     """

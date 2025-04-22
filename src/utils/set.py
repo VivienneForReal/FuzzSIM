@@ -16,7 +16,7 @@ def enumerate_permute_unit(X):
     """
     tmp = list_tuple_to_list_list(
         enumerate_tup(
-            convert_to_int(
+            convert_to_int_lst(
                 np.argsort(X)
             )
         )
@@ -36,7 +36,7 @@ def enumerate_permute_batch(desc_set):
     for i in range(desc_set.shape[0]):
         test_elem = desc_set[i]
         permute = np.argsort(test_elem)
-        tmp.append(list_tuple_to_list_list(enumerate_tup(convert_to_int(permute))))
+        tmp.append(list_tuple_to_list_list(enumerate_tup(convert_to_int_lst(permute))))
 
     return tmp
 

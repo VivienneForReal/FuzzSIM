@@ -3,6 +3,7 @@
 import numpy as np
 
 from src.classif.base import Classifier
+from src.fuzz.sim import SimLevel1
 
 class KNN(Classifier):
     """ Classe pour représenter un classifieur par K plus proches voisins.
@@ -49,7 +50,7 @@ class KNN(Classifier):
         self.label_set = label_set
 
 class KNNFuzz(KNN):
-    def __init__(self, input_dimension, k=3, sim=fz.SimLevel1):
+    def __init__(self, input_dimension, k=3, sim=SimLevel1):
         """ KNN avec une distance de type fuzz
             k: le nombre de voisins à prendre en compte
             sim: la fonction de similarité à utiliser
