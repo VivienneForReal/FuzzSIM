@@ -5,7 +5,7 @@ from src.fuzz.norm import T_norm, T_conorm
 from src.utils.set import *
 
 # TODO: Finish Choquet function
-def Choquet(obs, mu, mode='P'):
+def Choquet(obs, mu):
     permuted = enumerate_permute_unit(obs)
 
     return Choquet_unit(capacity=mu, observation=obs, permutation=permuted)
@@ -47,7 +47,6 @@ def Choquet_unit(capacity, observation, permutation):
     return float(choquet)
 
 
-# TODO: Finish function for X and Y set operations for Choquet calculation
 def s_intersection(X, Y, mode='P'):
     """
     Calculate the capacity of the intersection of two sets of values
@@ -56,6 +55,14 @@ def s_intersection(X, Y, mode='P'):
     :param mode: Type of t-norm to use (M, P, L) 
     :return: Capacity of the intersection of the two sets of values
     """
+    # Ensure X and Y have the same shape
+    if len(X) != len(Y):
+        # If different lengths, pad the shorter one with zeros
+        if len(X) < len(Y):
+            X = np.pad(X, (0, len(Y) - len(X)), 'constant')
+        else:
+            Y = np.pad(Y, (0, len(X) - len(Y)), 'constant')
+    
     return T_norm(X, Y, mode=mode)
 
 def s_union(X, Y, mode='P'):
@@ -66,11 +73,17 @@ def s_union(X, Y, mode='P'):
     :param mode: Type of t-conorm to use (M, P, L)
     :return: Capacity of the union of the two sets of values
     """
+    # Ensure X and Y have the same shape
+    if len(X) != len(Y):
+        # If different lengths, pad the shorter one with zeros
+        if len(X) < len(Y):
+            X = np.pad(X, (0, len(Y) - len(X)), 'constant')
+        else:
+            Y = np.pad(Y, (0, len(X) - len(Y)), 'constant')
+            
     return T_conorm(X, Y, mode=mode)
 
 
-
-# TODO: Check if s_triangle and s_diff are correct
 def s_triangle(X, Y, mode='P'):
     """
     Calculate the capacity of the triangle of two sets of values
@@ -81,11 +94,26 @@ def s_triangle(X, Y, mode='P'):
 
     Hyp: X \ Y takes the values of X that are not in Y and inversely
     """
-    return T_conorm(
-        X = np.array(convert_to_float_lst([x for x in X if x not in Y])),
-        Y = np.array(convert_to_float_lst([y for y in Y if y not in X])),
-        mode=mode
-    )
+    # Extract elements in X but not in Y
+    X_diff = np.array([x for x in X if x not in Y], dtype=float)
+    # Extract elements in Y but not in X
+    Y_diff = np.array([y for y in Y if y not in X], dtype=float)
+    
+    # Handle empty arrays - if either is empty, return the other
+    if len(X_diff) == 0:
+        if len(Y_diff) == 0:
+            return np.zeros(1)  # Both empty, return zero
+        return Y_diff
+    elif len(Y_diff) == 0:
+        return X_diff
+    
+    # Ensure arrays have the same shape for T_conorm operation
+    max_len = max(len(X_diff), len(Y_diff))
+    X_padded = np.pad(X_diff, (0, max_len - len(X_diff)), 'constant')
+    Y_padded = np.pad(Y_diff, (0, max_len - len(Y_diff)), 'constant')
+    
+    return T_conorm(X_padded, Y_padded, mode=mode)
+
 
 def s_diff(X, Y, mode='P', reverse=False):
     """
@@ -98,6 +126,14 @@ def s_diff(X, Y, mode='P', reverse=False):
 
     Hyp: Y is normalized between 0 and 1, perform (.)^c = 1 - (.)
     """
+    # Ensure X and Y have the same shape
+    if len(X) != len(Y):
+        # If different lengths, pad the shorter one with zeros
+        if len(X) < len(Y):
+            X = np.pad(X, (0, len(Y) - len(X)), 'constant')
+        else:
+            Y = np.pad(Y, (0, len(X) - len(Y)), 'constant')
+    
     X_c = 1 - X
     Y_c = 1 - Y
 
