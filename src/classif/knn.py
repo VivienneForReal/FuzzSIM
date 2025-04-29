@@ -4,6 +4,7 @@ import numpy as np
 
 from src.classif.base import Classifier
 from src.fuzz.sim import *
+import src.utils as ut
 
 class KNN(Classifier):
     """ Classe pour représenter un classifieur par K plus proches voisins.
@@ -58,24 +59,35 @@ class KNNFuzz(KNN):
         super().__init__(input_dimension=input_dimension, k=k)
         self.sim = sim
         self.mu = mu
+    
 
+    # TODO: Fix similarity implementation
     def score(self, x):
         from collections import Counter
         """ Rend la proportion des labels parmi les k ppv de x (valeur réelle)
             x: une description : un ndarray
         """
         # Compute similarity between x and all points in desc_set
-        similarity = np.array([self.sim(x, desc, self.mu).score() for desc in self.desc_set])
-        # print(f"Similarity: {similarity}")
+        # similarity = np.array([self.sim(x, desc, self.mu).score() for desc in self.desc_set])
+        # (f"Similarity: {similarity}")
 
-        # distances = np.sqrt(np.sum((self.desc_set - x) ** 2, axis=1))
+        # TODO: Fix this implementation
+        similarity = []
+        for i in range(len(self.desc_set)):
+            desc = get_dim_list(self.desc_set[i], len(x))
+            sim = np.array(
+                [self.sim(x, desc[j], self.mu).score() for j in range(len(desc))]
+            )
+            max_sim = np.max(sim)
+            similarity.append(max_sim)
+        similarity = np.array(similarity)
+
+        # Check closest points
         nearest_indices = np.argsort(similarity)[:self.k]
-        # print(f"Nearest indices: {nearest_indices}")
         nearest_labels = self.label_set[nearest_indices]
-        # print(f"Nearest labels: {nearest_labels}")
         
+        # Count the occurrences of each label among the nearest neighbors
         label_counts = Counter(nearest_labels)
-        # print(f"Label counts: {label_counts}")
         return max(label_counts.items(), key=lambda item: (item[1], -item[0]))[0]
 
     def predict(self, x):
@@ -92,3 +104,24 @@ class KNNFuzz(KNN):
         """
         self.desc_set = desc_set
         self.label_set = label_set
+
+        tmp = []
+        # TODO: enumerate desc_set
+        for i in range(desc_set.shape[0]):
+            permute = ut.enumerate_permute_batch(desc_set[i])
+
+            # Sort following permute
+            for i in range(len(permute)):
+                permute[i] = desc_set[i][permute[i]]
+            tmp.append(permute)
+        self.desc_set = tmp
+
+
+# Additional function
+def get_dim_list(lst, dim):
+    # Get list of items in lst that have dimension dim
+    l = []
+    for i in range(len(lst)):
+        if len(lst[i]) == dim:
+            l.append(lst[i])
+    return l if l else None

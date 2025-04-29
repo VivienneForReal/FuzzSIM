@@ -5,7 +5,7 @@ from src.fuzz.norm import T_norm, T_conorm
 from src.utils.set import *
 
 # TODO: Finish Choquet function
-def Choquet(obs, mu, mode='P'):
+def Choquet(obs, mu):
     permuted = enumerate_permute_unit(obs)
 
     return Choquet_unit(capacity=mu, observation=obs, permutation=permuted)

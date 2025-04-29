@@ -33,13 +33,6 @@ def enumerate_permute_batch(X):
     :return: List of all permutations of the dataset.
     """
     return list_tuple_to_list_list(enumerate_tup(convert_to_int_lst(np.argsort(X))))
-    # tmp = []
-    # for i in range(desc_set.shape[0]):
-    #     test_elem = desc_set[i]
-    #     permute = np.argsort(test_elem)
-    #     tmp.append(list_tuple_to_list_list(enumerate_tup(convert_to_int_lst(permute))))
-
-    # return tmp
 
 def enumerate_tup(lst):
     """

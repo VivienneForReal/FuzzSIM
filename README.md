@@ -32,7 +32,8 @@ FuzzSIM/
 
 
 ## Setup conda environment
+### Quick setup
 ```bash
-conda env create -f environment.yml
-conda activate fuzzsim
+chmod +x scripts/setup_env.sh
+./scripts/setup_env.sh
 ```
