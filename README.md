@@ -37,3 +37,8 @@ FuzzSIM/
 chmod +x scripts/setup_env.sh
 ./scripts/setup_env.sh
 ```
+
+## Data installation
+```bash
+chmod +x scripts/data_installer.sh
+./scripts/data_installer.sh
