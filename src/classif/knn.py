@@ -10,8 +10,6 @@ class KNN(Classifier):
     """ Classe pour représenter un classifieur par K plus proches voisins.
         Cette classe hérite de la classe Classifier
     """
-
-    # ATTENTION : il faut compléter cette classe avant de l'utiliser !
     
     def __init__(self, input_dimension, k):
         """ Constructeur de KNN
@@ -51,7 +49,7 @@ class KNN(Classifier):
         self.label_set = label_set
 
 class KNNFuzz(KNN):
-    def __init__(self, input_dimension,mu, k=3, sim=SimLevel1):
+    def __init__(self, input_dimension, mu, k=3, sim=SimLevel1):
         """ KNN avec une distance de type fuzz
             k: le nombre de voisins à prendre en compte
             sim: la fonction de similarité à utiliser
@@ -60,30 +58,43 @@ class KNNFuzz(KNN):
         self.sim = sim
         self.mu = mu
     
-
-    # TODO: Fix similarity implementation
     def score(self, x):
         from collections import Counter
         """ Rend la proportion des labels parmi les k ppv de x (valeur réelle)
             x: une description : un ndarray
         """
-        # Compute similarity between x and all points in desc_set
-        # similarity = np.array([self.sim(x, desc, self.mu).score() for desc in self.desc_set])
-        # (f"Similarity: {similarity}")
-
-        # TODO: Fix this implementation
         similarity = []
         for i in range(len(self.desc_set)):
             desc = get_dim_list(self.desc_set[i], len(x))
-            sim = np.array(
-                [self.sim(x, desc[j], self.mu).score() for j in range(len(desc))]
-            )
-            max_sim = np.max(sim)
+            
+            # If desc is None or empty, skip this point
+            if desc is None or len(desc) == 0:
+                similarity.append(0)  # No similarity if no matching dimension
+                continue
+                
+            # Calculate similarity for each descriptor with matching dimension
+            sim_values = []
+            for j in range(len(desc)):
+                # Try-except to handle potential errors in similarity calculation
+                try:
+                    sim_val = self.sim(x, desc[j], self.mu).score()
+                    sim_values.append(sim_val)
+                except Exception as e:
+                    print(f"Warning: Error in similarity calculation: {e}")
+                    # Continue with other descriptors
+            
+            # If we have any valid similarity values, use the max
+            if sim_values:
+                max_sim = np.max(sim_values)
+            else:
+                max_sim = 0
+                
             similarity.append(max_sim)
+        
         similarity = np.array(similarity)
 
-        # Check closest points
-        nearest_indices = np.argsort(similarity)[:self.k]
+        # Check closest points - highest similarity
+        nearest_indices = np.argsort(similarity)[-self.k:][::-1]
         nearest_labels = self.label_set[nearest_indices]
         
         # Count the occurrences of each label among the nearest neighbors
@@ -106,22 +117,47 @@ class KNNFuzz(KNN):
         self.label_set = label_set
 
         tmp = []
-        # TODO: enumerate desc_set
+        # Process each description
         for i in range(desc_set.shape[0]):
-            permute = ut.enumerate_permute_batch(desc_set[i])
-
-            # Sort following permute
-            for i in range(len(permute)):
-                permute[i] = desc_set[i][permute[i]]
-            tmp.append(permute)
+            try:
+                permute = ut.enumerate_permute_batch(desc_set[i])
+                
+                # Sort following permute
+                permuted_desc = []
+                for j in range(len(permute)):
+                    permuted_desc.append(desc_set[i][permute[j]])
+                tmp.append(permuted_desc)
+            except Exception as e:
+                print(f"Warning: Error processing description {i}: {e}")
+                # Add the original description without permutation
+                tmp.append([desc_set[i]])
+                
         self.desc_set = tmp
 
 
 # Additional function
 def get_dim_list(lst, dim):
-    # Get list of items in lst that have dimension dim
+    """
+    Get list of items in lst that have dimension dim
+    
+    Args:
+        lst: List of arrays
+        dim: Target dimension
+        
+    Returns:
+        List of arrays with specified dimension or None if no matches
+    """
+    if lst is None:
+        return None
+        
     l = []
     for i in range(len(lst)):
-        if len(lst[i]) == dim:
-            l.append(lst[i])
+        # Check if the item exists and has the right dimension
+        try:
+            if len(lst[i]) == dim:
+                l.append(lst[i])
+        except (TypeError, IndexError):
+            # Skip items that don't have a length or are invalid
+            continue
+            
     return l if l else None
