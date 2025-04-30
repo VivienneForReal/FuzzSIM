@@ -20,11 +20,15 @@ def Choquet_unit(capacity, observation, permutation):
     """
     # Define choquet sum
     choquet = 0
-    perm_max = permutation[-1]
+    # perm_max = permutation[-1]
 
-    for i in reversed(range(len(observation))):
 
-        val_check = perm_max[:i+1]
+
+    print(len(observation), observation)
+    # TODO: Check if the implementation is correct
+    for i in reversed(range(len(permutation))):
+        print(i, permutation[i])
+        val_check = permutation[i]
 
         # Compute the capacity of the observation
         capacity_observation_i = compute_capacity_unit(
@@ -32,17 +36,22 @@ def Choquet_unit(capacity, observation, permutation):
             capacity=capacity,
             val=val_check
         )
-        if i == len(observation) - 1:
+        if i == len(permutation) - 1:
             capacity_observation_i_1 = 0        # Case of the last element -> empty set
+
+            print(f'val_check: {val_check} - capacity_observation_i: {capacity_observation_i} - capacity_observation_i_1: {capacity_observation_i_1}')
         else:
-            val_check2 = perm_max[:i]
+            val_check2 = permutation[i-1]
             capacity_observation_i_1 = compute_capacity_unit(
                 lst_val=permutation,
                 capacity=capacity,
                 val=val_check2
             )
 
+            print(f'val_check: {val_check} - capacity_observation_i: {capacity_observation_i} - capacity_observation_i_1: {capacity_observation_i_1} - val_check2: {val_check2}')
+
         # Compute the choquet sum
+        # TODO: Check if the implementation is correct -> need instructor's paper
         choquet += (capacity_observation_i - capacity_observation_i_1) * observation[i]
     return float(choquet)
 

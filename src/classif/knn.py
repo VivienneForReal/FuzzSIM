@@ -63,33 +63,7 @@ class KNNFuzz(KNN):
         """ Rend la proportion des labels parmi les k ppv de x (valeur réelle)
             x: une description : un ndarray
         """
-        similarity = []
-        for i in range(len(self.desc_set)):
-            desc = get_dim_list(self.desc_set[i], len(x))
-            
-            # If desc is None or empty, skip this point
-            if desc is None or len(desc) == 0:
-                similarity.append(0)  # No similarity if no matching dimension
-                continue
-                
-            # Calculate similarity for each descriptor with matching dimension
-            sim_values = []
-            for j in range(len(desc)):
-                # Try-except to handle potential errors in similarity calculation
-                try:
-                    sim_val = self.sim(x, desc[j], self.mu).score()
-                    sim_values.append(sim_val)
-                except Exception as e:
-                    print(f"Warning: Error in similarity calculation: {e}")
-                    # Continue with other descriptors
-            
-            # If we have any valid similarity values, use the max
-            if sim_values:
-                max_sim = np.max(sim_values)
-            else:
-                max_sim = 0
-                
-            similarity.append(max_sim)
+        similarity = [self.sim(x, self.desc_set[j], self.mu).score() for j in range(len(self.desc_set))]
         
         similarity = np.array(similarity)
 
@@ -116,23 +90,23 @@ class KNNFuzz(KNN):
         self.desc_set = desc_set
         self.label_set = label_set
 
-        tmp = []
-        # Process each description
-        for i in range(desc_set.shape[0]):
-            try:
-                permute = ut.enumerate_permute_batch(desc_set[i])
+        # tmp = []
+        # # Process each description
+        # for i in range(desc_set.shape[0]):
+        #     try:
+        #         permute = ut.enumerate_permute_batch(desc_set[i])
                 
-                # Sort following permute
-                permuted_desc = []
-                for j in range(len(permute)):
-                    permuted_desc.append(desc_set[i][permute[j]])
-                tmp.append(permuted_desc)
-            except Exception as e:
-                print(f"Warning: Error processing description {i}: {e}")
-                # Add the original description without permutation
-                tmp.append([desc_set[i]])
+        #         # Sort following permute
+        #         permuted_desc = []
+        #         for j in range(len(permute)):
+        #             permuted_desc.append(desc_set[i][permute[j]])
+        #         tmp.append(permuted_desc)
+        #     except Exception as e:
+        #         print(f"Warning: Error processing description {i}: {e}")
+        #         # Add the original description without permutation
+        #         tmp.append([desc_set[i]])
                 
-        self.desc_set = tmp
+        # self.desc_set = tmp
 
 
 # Additional function
