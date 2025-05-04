@@ -37,9 +37,3 @@ FuzzSIM/
 chmod +x scripts/setup_env.sh
 ./scripts/setup_env.sh
 ```
-
-## Data installation
-If you want to keep the data locally, please run the following command:
-```bash
-chmod +x scripts/data_installer.sh
-./scripts/data_installer.sh
