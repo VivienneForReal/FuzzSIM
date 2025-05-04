@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# @author: H. T. Duong V.
 
 import numpy as np
 
@@ -23,21 +24,18 @@ class Classifier:
             label_set: ndarray avec les labels correspondants
             Hypothèse: desc_set et label_set ont le même nombre de lignes
         """        
-        pass
         raise NotImplementedError("Please Implement this method")
     
     def score(self,x):
         """ rend le score de prédiction sur x (valeur réelle)
             x: une description
         """
-        pass
         raise NotImplementedError("Please Implement this method")
     
     def predict(self, x):
         """ rend la prediction sur x (soit -1 ou soit +1)
             x: une description
         """
-        pass
         raise NotImplementedError("Please Implement this method")
 
     def accuracy(self, desc_set, label_set):
