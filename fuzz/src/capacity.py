@@ -29,6 +29,20 @@ class Capacity:
         """
         return self.mu
     
+def locate_capacity(X: List[int], capacity: List[Capacity]) -> float:
+    """
+    Locate the capacity of the fuzzy set.
+    
+    :param X: list of values.
+    :param capacity: associated capacity.
+    :return: capacity of the fuzzy set.
+    """
+    for i in range(len(capacity)):
+        if set(X) == set(capacity[i].X):
+            return capacity[i].get_capacity()
+        
+    raise ValueError("Capacity not found for the given values.")
+    
 # Functions for capacity computation
 def generate_capacity_unit(lst_val: List[int], nb_x: int) -> float:
     """

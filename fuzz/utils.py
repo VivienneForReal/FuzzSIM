@@ -47,7 +47,6 @@ def convert_lst_tup_to_lst_lst(lst: List[Tuple]) -> List[List]:
 # Enumerator
 def enumerate_permute_unit(X):
     """
-    Note: This function is not used in the code.
     Generate all possible permutations of the input dataset.
     Hyp: all elements returned are ordered
 
@@ -65,6 +64,7 @@ def enumerate_permute_unit(X):
     
 def enumerate_permute_batch(X):
     """
+    Note: This function is not used in the code.
     Generate all possible permutations of the input dataset.
     Hyp: all elements returned are ordered
 
