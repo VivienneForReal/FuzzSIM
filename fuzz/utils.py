@@ -12,7 +12,7 @@ def sync_lst_to_float_lst(lst: List) -> np.ndarray:
     :param lst: List of values
     :return: List of floats
     """
-    return np.array([float(x) for x in lst if x is not None and x != ''])
+    return np.array(lst, dtype=float)
 
 def sync_lst_to_int_lst(lst: List) -> np.ndarray:
     """
@@ -20,20 +20,34 @@ def sync_lst_to_int_lst(lst: List) -> np.ndarray:
     :param lst: List of values
     :return: List of integers
     """
-    return np.array([int(x) for x in lst if x is not None and x != ''])
+    return np.array(lst, dtype=int)
 
 
 # Converter
 def convert_lst_tup_to_lst_lst(lst: List[Tuple]) -> List[List]:
     """
-    Convert a list of tuples to a list of lists.
-    :param lst: List of tuples
-    :return: List of lists
+    Convert a list of tuples to a list of lists with native Python types.
+    :param lst: List of tuples (possibly with NumPy types)
+    :return: List of lists with native types
     """
-    return [list(tup) for tup in lst]
+    result = []
+    for tup in lst:
+        converted = []
+        for x in tup:
+            if isinstance(x, (np.integer, int)):
+                converted.append(int(x))
+            elif isinstance(x, (np.floating, float)):
+                converted.append(float(x))
+            else:
+                converted.append(x)
+        result.append(converted)
+    return result
 
+
+# Enumerator
 def enumerate_permute_unit(X):
     """
+    Note: This function is not used in the code.
     Generate all possible permutations of the input dataset.
     Hyp: all elements returned are ordered
 
@@ -49,8 +63,6 @@ def enumerate_permute_unit(X):
     )
     return tmp
     
-
-# Enumerator
 def enumerate_permute_batch(X):
     """
     Generate all possible permutations of the input dataset.
