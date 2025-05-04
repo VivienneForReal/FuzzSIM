@@ -20,6 +20,8 @@ class Choquet:
 
         Several versions of the Choquet integral are available:
         - classic: Choquet integral with the classic definition.
+
+        Upcoming version for Choquet will be released in the future.
         """
         self.X = X
         self.capacity = mu
