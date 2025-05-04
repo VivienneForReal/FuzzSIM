@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
+# @author: H. T. Duong V.
 
 import numpy as np
-import pandas as pd 
-import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_style(style="darkgrid")
 import random
 random.seed(42)
 
-from src.utils.utils import convert_to_float_lst
+from fuzz.utils import sync_lst_to_float_lst
 
-def batch_norm(array):
+def batch_norm(array: np.ndarray) -> np.ndarray:
     """
     Normalize a batch of data
     :param array: Batch of data
@@ -18,7 +17,7 @@ def batch_norm(array):
     """
     return np.array([norm(x) for x in array])
 
-def norm(X):
+def norm(X: np.ndarray) -> np.ndarray:
     """
     Calculate t-norm of two sets of values
     :param X: First set of values
@@ -27,9 +26,9 @@ def norm(X):
     min_val = min(X)
     max_val = max(X)
     normalized_array = [(x - min_val) / (max_val - min_val) for x in X]
-    return np.array(convert_to_float_lst(normalized_array))
+    return sync_lst_to_float_lst(normalized_array)
 
-def T_norm(X, Y, mode='P'):
+def T_norm(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
     """
     Calculate t-norm of two sets of values
     :param X: First set of values
@@ -53,7 +52,7 @@ def T_norm(X, Y, mode='P'):
     else:
         raise ValueError("Invalid mode. Choose from 'M', 'P', or 'L'.")
     
-def T_conorm(X, Y, mode='P'):
+def T_conorm(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
     """
     Calculate t-conorm of two sets of values
     :param X: First set of values

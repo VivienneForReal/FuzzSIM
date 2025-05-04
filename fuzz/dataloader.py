@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
+# @author: H. T. Duong V.
 
 import numpy as np
+from typing import Tuple
 import random
 import scipy as scipy
-import random
 
 random.seed(42) # For reproducibility
 
-def generate_train_test(desc_set, label_set, n_per_class):
+def generate_train_test(desc_set: np.ndarray, label_set: np.ndarray, n_per_class: int) -> Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
     """
     Génère des ensembles d'entraînement et de test avec un nombre donné d'exemples par classe pour l'entraînement.
 
@@ -49,7 +50,7 @@ def generate_train_test(desc_set, label_set, n_per_class):
     )
 
 
-def generate_uniform_dataset_multiclass(p, n_per_class, classes, binf=-1, bsup=1):
+def generate_uniform_dataset_multiclass(p: int, n_per_class: int, classes: list, binf: float = -1, bsup: float = 1) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generate a uniformly distributed dataset for multiple classes.
 
@@ -76,7 +77,7 @@ def generate_uniform_dataset_multiclass(p, n_per_class, classes, binf=-1, bsup=1
 
     
 
-def generate_gaussian_dataset(centers, sigmas, labels, nb_points_per_class):
+def generate_gaussian_dataset(centers: np.ndarray, sigmas: np.ndarray, labels: np.ndarray, nb_points_per_class: int) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generates a dataset from multiple Gaussian distributions.
     
@@ -123,7 +124,7 @@ def generate_gaussian_dataset(centers, sigmas, labels, nb_points_per_class):
 
 
 
-def dynamic_generate_positive_gaussian_data(dim, nb_classes, nb_points_per_class, seed=None):
+def dynamic_generate_positive_gaussian_data(dim: int, nb_classes: int, nb_points_per_class: int, seed: int = None) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generates all-positive multivariate Gaussian data.
 

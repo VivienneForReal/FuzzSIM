@@ -38,8 +38,16 @@ chmod +x scripts/setup_env.sh
 ./scripts/setup_env.sh
 ```
 
-## Data installation
-If you want to keep the data locally, please run the following command:
+## Manual setup
 ```bash
-chmod +x scripts/data_installer.sh
-./scripts/data_installer.sh
+conda create -n fuzzsim python=3.10 -y
+
+# Activate the environment
+conda activate fuzzsim
+
+# Optional: upgrade pip
+pip install --upgrade pip
+
+# Install other dependencies
+pip install -r requirements.txt
+```

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# @author: H. T. Duong V.
 
 import copy
 import numpy as np
