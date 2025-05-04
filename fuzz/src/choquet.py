@@ -25,6 +25,10 @@ class Choquet:
         """
         self.X = X
         self.capacity = mu
+        if version == "classic":
+            self.choquet = self.Choquet_classic()
+        else:
+            raise ValueError("Unsupported Choquet version provided.")
     
     def Choquet_classic(self, verbose: bool = False) -> float: 
         """
