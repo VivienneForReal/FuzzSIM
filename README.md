@@ -37,3 +37,17 @@ FuzzSIM/
 chmod +x scripts/setup_env.sh
 ./scripts/setup_env.sh
 ```
+
+## Manual setup
+```bash
+conda create -n fuzzsim python=3.10 -y
+
+# Activate the environment
+conda activate fuzzsim
+
+# Optional: upgrade pip
+pip install --upgrade pip
+
+# Install other dependencies
+pip install -r requirements.txt
+```
