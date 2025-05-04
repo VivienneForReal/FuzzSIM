@@ -40,6 +40,7 @@ chmod +x scripts/setup_env.sh
 
 ## Manual setup
 ```bash
+# Create a conda environment with compatible python version (3.10)
 conda create -n fuzzsim python=3.10 -y
 
 # Activate the environment
