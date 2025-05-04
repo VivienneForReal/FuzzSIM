@@ -17,6 +17,9 @@ class Choquet:
         
         :param X: list of values.
         :param mu: associated capacity.
+
+        Several versions of the Choquet integral are available:
+        - classic: Choquet integral with the classic definition.
         """
         self.X = X
         self.capacity = mu
