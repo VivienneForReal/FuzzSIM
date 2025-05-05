@@ -64,10 +64,10 @@ class Optim:
         Attention: cette classe est ne doit pas être instanciée.
     """
     
-    def __init__(self, optimizer: Any):
+    def __init__(self):
         """ Constructeur de Optim
             Argument:
                 - optimizer (callable) : fonction d'optimisation à utiliser
             Hypothèse : optimizer est une fonction valide
         """
-        self.optimizer = optimizer
+        pass
