@@ -50,11 +50,11 @@ def FuzzLOO(C, DS, mu, time_counter=False):
         Xtest, Ytest = Xm[i], Ym[i]
         
         Xapp, Yapp = np.array(list(Xm[:i])+list(Xm[i+1:])), np.array(list(Ym[:i])+list(Ym[i+1:]))
-    
-        cl = copy.deepcopy(C)
-        cl.train(Xapp,Yapp)
 
-        if cl.accuracy([Xtest], [Ytest]) == 1 : pt+=1
+        cl = copy.deepcopy(C)
+        cl.train(desc_set=Xapp, label_set=Yapp)
+
+        if cl.accuracy([Xtest], [Ytest]) == 1: pt += 1
 
     if time_counter:
         toc = time.time()
