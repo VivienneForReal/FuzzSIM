@@ -3,11 +3,6 @@ __pycache__/
 *.pyc
 *.ipynb_checkpoints/
 *.ipynb
-archive/
 .DS_Store
 .vscode/
 *.pt
-evaluation_results/
-results/
-train_results/
-test_results/
