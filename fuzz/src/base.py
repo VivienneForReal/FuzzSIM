@@ -2,6 +2,7 @@
 # @author: H. T. Duong V.
 
 import numpy as np
+from typing import Any
 
 class Classifier:
     """ Classe (abstraite) pour représenter un classifyur
@@ -57,3 +58,16 @@ class Classifier:
             if pred[i] == label_set[i] :
                 good_rate += 1
         return good_rate / len(desc_set)
+    
+class Optim:
+    """ Classe (abstraite) pour représenter un optimiseur
+        Attention: cette classe est ne doit pas être instanciée.
+    """
+    
+    def __init__(self, optimizer: Any):
+        """ Constructeur de Optim
+            Argument:
+                - optimizer (callable) : fonction d'optimisation à utiliser
+            Hypothèse : optimizer est une fonction valide
+        """
+        self.optimizer = optimizer
