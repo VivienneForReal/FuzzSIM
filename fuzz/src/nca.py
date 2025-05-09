@@ -37,7 +37,11 @@ class NCA(nn.Module):
         Forward pass through the network.
         :param x: Input tensor.
         :return: Output tensor after linear transformation.
+
+        Note: Make sure to convert x to a tensor if it is not already.
         """
+        if not isinstance(x, torch.Tensor):
+            x = torch.tensor(x, dtype=torch.float32)
         x = self.A(x)
         return x
     
