@@ -7,3 +7,5 @@ pyswarms
 plotly
 palmerpenguins
 nbformat
+torch 
+torchviz
