@@ -4,134 +4,110 @@
 import torch
 import torch.nn as nn 
 from torchviz import make_dot
+import numpy as np
 
-class BaseModel(nn.Module):
-    def __init__(
-            self, 
-            device: str = 'cuda' if torch.cuda.is_available() else 'cpu', 
-            **kwargs
-    ) -> None:
-        super().__init__()
-        self.device = device
-        self.to(device)
-
-    def visualize_network(
-        self,
-        x: torch.Tensor,
-    ) -> None:
-        """
-        Visualize the model architecture and parameters.
-        """
-        # Do not double convert tensor to device
-        y = self(x)
-        dot = make_dot(y, params=dict(list(self.named_parameters()) + [('x', x)]))
-        dot.render(f"model_architecture_{self.__class__.__name__}", format="png")
-        
-    def get_model_summary(self) -> str:
-        """
-        Generate a summary of the model architecture and number of parameters.
-        """
-        model_summary = str(self)
-        return model_summary
-    
-    def get_num_parameters(self) -> int:
-        """
-        Calculate the total number of parameters in the model.
-        """
-        num_params = sum(p.numel() for p in self.parameters())
-        return num_params
-    
-    def check_dtype(self):
-        for name, param in self.named_parameters():
-            print(f"{name}: {param.dtype}")
-
-    def count_dtypes(self):
-        dtype_counts = {}
-        for param in self.parameters():
-            dtype = param.dtype
-            if dtype in dtype_counts:
-                dtype_counts[dtype] += 1
-            else:
-                dtype_counts[dtype] = 1
-        
-        for dtype, count in dtype_counts.items():
-            print(f"{dtype}: {count} parameters")
-
-    def get_model_size(self):
-        size_bytes = 0
-        for param in self.parameters():
-            size_bytes += param.nelement() * param.element_size()
-        return size_bytes / 1024**2  # Convert to MB
-
-class NCA(BaseModel):
+class NCA(nn.Module):
     """
     Neighborhood Component Analysis (NCA) for dimensionality reduction
     and learning a distance metric.
     """
-    def __init__(self, input_dim: int, output_dim: int):
+    def __init__(self, input_dim, output_dim):
         """
         Initialize NCA parameters.
         :param input_dim: Number of input features.
         :param output_dim: Number of output features (dimensions).
-
-        Note: Softmax is not included in the original paper's description.
-
-        Hypothesis: 
-        - input_dim > 0
-        - output_dim should be less than input_dim
         """
         super(NCA, self).__init__()
         self.input_dim = input_dim
         self.output_dim = output_dim
-        if output_dim >= input_dim:
-            raise ValueError("output_dim should be less than input_dim")
-        self.A = nn.Linear(input_dim, output_dim)
-        # self.softmax = nn.Softmax(dim=1)   # Softmax is not included in the original paper's description.
-
+        # Initialize A with small random values
+        self.A = nn.Parameter(torch.randn(output_dim, input_dim) * 0.01)
+        
     def forward(self, x):
         """
-        Forward pass through the network.
-        :param x: Input tensor.
-        :return: Output tensor after linear transformation.
-
-        Note: Make sure to convert x to a tensor if it is not already.
+        Forward pass: transform input using the learned transformation matrix A.
+        :param x: Input tensor of shape [n, input_dim]
+        :return: Transformed output of shape [n, output_dim]
         """
         if not isinstance(x, torch.Tensor):
             x = torch.tensor(x, dtype=torch.float32)
-        x = self.A(x)
-        return x
+        return torch.matmul(x, self.A.t())
+    
+    def compute_loss(self, x, labels):
+        """
+        Compute the NCA loss as described in the paper.
+        :param x: Input data tensor of shape [n, input_dim]
+        :param labels: Input labels tensor of shape [n]
+        :return: NCA loss value
+        """
+        if not isinstance(x, torch.Tensor):
+            x = torch.tensor(x, dtype=torch.float32)
+        if not isinstance(labels, torch.Tensor):
+            labels = torch.tensor(labels, dtype=torch.long)
+            
+        # Transform the input data
+        transformed = self.forward(x)  # shape: [n, output_dim]
+        
+        # Compute squared Euclidean distances between all pairs
+        n = transformed.size(0)
+        sq_dists = torch.cdist(transformed, transformed, p=2.0).pow(2)  # shape: [n, n]
+        
+        # Compute stochastic neighbor probabilities (p_ij)
+        # Set diagonal to inf to ensure p_ii = 0
+        mask = torch.eye(n, dtype=torch.bool, device=transformed.device)
+        sq_dists.masked_fill_(mask, float('inf'))
+        
+        # Compute p_ij (probability that i selects j as its neighbor)
+        pij = torch.exp(-sq_dists)
+        pij = pij / pij.sum(dim=1, keepdim=True)  # normalize each row
+        
+        # Compute p_i (probability that i will be correctly classified)
+        # Create a mask for same-class examples
+        same_class = (labels.unsqueeze(1) == labels.unsqueeze(0)).float()
+        same_class.masked_fill_(mask, 0)  # exclude self
+        
+        # Sum p_ij over all j in the same class as i
+        pi = (pij * same_class).sum(dim=1)  # shape: [n]
+        
+        # Maximize sum(pi) ⇒ minimize -sum(pi)
+        loss = -torch.sum(pi)
+        
+        return loss
+    
+    def train_model(self, x, labels, learning_rate=0.01, num_epochs=100):
+        """
+        Train the NCA model.
+        :param x: Input data
+        :param labels: Input labels
+        :param learning_rate: Learning rate for optimization
+        :param num_epochs: Number of training epochs
+        :return: List of loss values during training
+        """
+        if not isinstance(x, torch.Tensor):
+            x = torch.tensor(x, dtype=torch.float32)
+        if not isinstance(labels, torch.Tensor):
+            labels = torch.tensor(labels, dtype=torch.long)
+            
+        optimizer = torch.optim.Adam([self.A], lr=learning_rate)
+        losses = []
+        
+        for epoch in range(num_epochs):
+            optimizer.zero_grad()
+            loss = self.compute_loss(x, labels)
+            loss.backward()
+            optimizer.step()
+            
+            losses.append(loss.item())
+            if (epoch + 1) % 10 == 0:
+                print(f"Epoch {epoch+1}/{num_epochs}, Loss: {loss.item():.4f}")
+                
+        return losses
     
     def get_transformation_matrix(self):
         """
-        Get the transformation matrix A.
+        Get the learned transformation matrix A.
         :return: Transformation matrix A as a numpy array.
         """
-        return self.A.weight.detach().numpy()
-    
-    def loss(self, Z, y):
-        """
-        Compute the NCA loss.
-        :param Z: Transformed input tensor (output of the forward pass).
-        :param y: Labels tensor.
-        :return: NCA loss value.
-        """
-        n = Z.shape[0]
-        # Compute pairwise squared distances in transformed space
-        diff = Z.unsqueeze(1) - Z.unsqueeze(0)  # Shape: [n, n, d]
-        dists = torch.sum(diff ** 2, dim=2)     # Shape: [n, n]
-
-        # Apply softmax over negative distances for stochastic neighbors
-        mask = torch.eye(n, dtype=torch.bool, device=Z.device)
-        dists.masked_fill_(mask, float('inf'))  # pii = 0 ⇒ exclude self in softmax
-
-        pij = torch.softmax(-dists, dim=1)  # Shape: [n, n]
-
-        # For each i, compute pi = ∑_{j ∈ Ci} p_{ij}
-        y = y.view(-1, 1)  # Shape: [n, 1]
-        same_class = (y == y.T).float()  # Shape: [n, n]
-        pi = torch.sum(pij * same_class, dim=1)  # [n]
-
-        # Maximize sum(pi) ⇒ minimize -sum(pi)
-        return -torch.sum(pi)
+        return self.A.detach().numpy()
     
 
