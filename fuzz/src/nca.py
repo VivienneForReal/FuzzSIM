@@ -6,6 +6,8 @@ import torch.nn as nn
 from torchviz import make_dot
 import numpy as np
 
+# Failed implementation of NCA (Neighborhood Component Analysis) in PyTorch, not used in the final code.
+# This code is left as a reference for the original NCA implementation from scikit-learn.
 class NCA(nn.Module):
     """
     Neighborhood Component Analysis (NCA) for dimensionality reduction
