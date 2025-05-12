@@ -106,14 +106,14 @@ def s_triangle(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
     Hyp: X \ Y takes the values of X that are not in Y and inversely
     """
     # Extract elements in X but not in Y
-    X_diff = np.array([x if x not in Y else 0 for x in X], dtype=float)
+    X_diff_Y = np.array([x if x not in Y else 0 for x in X], dtype=float)
     # Extract elements in Y but not in X
-    Y_diff = np.array([y if y not in X else 0 for y in Y], dtype=float)
-    
-    if len(X_diff) != len(Y_diff):
+    Y_diff_X = np.array([y if y not in X else 0 for y in Y], dtype=float)
+
+    if len(X_diff_Y) != len(Y_diff_X):
         raise ValueError("X_diff and Y_diff must have the same length")
-    
-    return T_conorm(X_diff, Y_diff, mode=mode)
+
+    return T_conorm(X_diff_Y, Y_diff_X, mode=mode)
 
 
 def s_diff(X: np.ndarray, Y: np.ndarray, mode: str = 'P', reverse: bool = False) -> np.ndarray:

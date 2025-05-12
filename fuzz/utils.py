@@ -5,7 +5,7 @@ import torch
 import numpy as np
 from itertools import combinations
 
-def enumerate_permute_unit(x: torch.Tensor) -> torch.Tensor:
+def enumerate_permute(x: torch.Tensor) -> torch.Tensor:
     """
     Generate all possible permutations of the input dataset.
     Hyp: all elements returned are ordered

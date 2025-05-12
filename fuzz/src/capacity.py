@@ -39,6 +39,7 @@ def locate_capacity(X: torch.Tensor, capacity: List[Capacity]) -> float:
     :return: capacity of the fuzzy set.
     """
     for i in range(len(capacity)):
+        # print(X, capacity[i].X)
         if torch.equal(X, capacity[i].X):
             return capacity[i].get_capacity()
         
