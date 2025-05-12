@@ -1,79 +1,47 @@
 # -*- coding: utf-8 -*-
 # @author: H. T. Duong V.
 
-import numpy as np
-import seaborn as sns
-sns.set_style(style="darkgrid")
-import random
-random.seed(42)
+import torch
 
-from fuzz.utils import sync_lst_to_float_lst
+# normalize data
+def normalize(x: torch.Tensor) -> torch.Tensor:
+    min_x = torch.min(x, dim=1, keepdim=True)[0]
+    max_x = torch.max(x, dim=1, keepdim=True)[0]
+    return (x - min_x) / (max_x - min_x)
 
-def batch_norm(array: np.ndarray) -> np.ndarray:
+# Main functions for t-norm and t-conorm
+def T_norm(X: torch.Tensor, Y: torch.Tensor, mode: str = 'P') -> torch.Tensor:
     """
-    Normalize a batch of data
-    :param array: Batch of data
-    :return: Normalized data
-    """
-    return np.array([norm(x) for x in array])
-
-def norm(X: np.ndarray) -> np.ndarray:
-    """
-    Calculate t-norm of two sets of values
-    :param X: First set of values
-    :return: normalized data
-    """
-    min_val = min(X)
-    max_val = max(X)
-    normalized_array = [(x - min_val) / (max_val - min_val) for x in X]
-    return sync_lst_to_float_lst(normalized_array)
-
-def T_norm(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
-    """
-    Calculate t-norm of two sets of values
-    :param X: First set of values
-    :param Y: Second set of values
-    :param mode: Type of t-norm to use (M, P, L) 
-    :return: t-norm of the two sets of values
-
-    Hypothesis:
-    - X and Y are numpy arrays of the same shape
-    - mode is one of 'M', 'P', 'L'
-    - Mode M: Gödel (min) -> Very conservative, often used when strict AND is needed.
-    - Mode P: Product -> Smooth and multiplicative; good when partial contributions matter.
-    - Mode L: Lukasiewicz -> Allows for some compensation; good for modeling trade-offs.
+    Calculate t-norm of two sets of values using PyTorch.
+    
+    :param X: First tensor
+    :param Y: Second tensor
+    :param mode: 'M' (min), 'P' (product), or 'L' (Lukasiewicz)
+    :return: Tensor of t-norm values
     """
     if mode == 'M':
-        return np.minimum(X, Y)
+        return torch.minimum(X, Y)
     elif mode == 'P':
         return X * Y
     elif mode == 'L':
-        return np.maximum(0, X + Y - 1)
+        return torch.clamp(X + Y - 1, min=0)
     else:
         raise ValueError("Invalid mode. Choose from 'M', 'P', or 'L'.")
-    
-def T_conorm(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
-    """
-    Calculate t-conorm of two sets of values
-    :param X: First set of values
-    :param Y: Second set of values
-    :param mode: Type of t-conorm to use (M, P, L) 
-    :return: t-conorm of the two sets of values
 
-    Hypothesis:
-    - X and Y are numpy arrays of the same shape
-    - mode is one of 'M', 'P', 'L'
-    - Mode M: Gödel (max) -> Very conservative, often used when strict OR is needed.
-    - Mode P: Sum -> Smooth and additive; good when partial contributions matter.
-    - Mode L: Lukasiewicz -> Allows for some compensation; good for modeling trade-offs.
+def T_conorm(X: torch.Tensor, Y: torch.Tensor, mode: str = 'P') -> torch.Tensor:
+    """
+    Calculate t-conorm of two sets of values using PyTorch.
+    
+    :param X: First tensor
+    :param Y: Second tensor
+    :param mode: 'M' (max), 'P' (probabilistic sum), or 'L' (Lukasiewicz)
+    :return: Tensor of t-conorm values
     """
     if mode == 'M':
-        return np.maximum(X, Y)
+        return torch.maximum(X, Y)
     elif mode == 'P':
-        # print("X+Y:", X + Y)
-        # print("X*Y:", X * Y)
         return X + Y - X * Y
     elif mode == 'L':
-        return np.minimum(1, X + Y)
+        return torch.clamp(X + Y, max=1)
     else:
         raise ValueError("Invalid mode. Choose from 'M', 'P', or 'L'.")

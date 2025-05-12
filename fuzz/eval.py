@@ -1,63 +1,46 @@
 # -*- coding: utf-8 -*-
 # @author: H. T. Duong V.
 
-import copy
-import numpy as np
+import torch
 import time
+import copy
 
-from fuzz.src.knn import KNNFuzz
-from fuzz.src.sim import FuzzSIM, S1,S2,S3
-
-def leave_one_out(C, DS, time_counter=False):
-    """ Classifieur * tuple[array, array] -> float
-    """
-    ###################### A COMPLETER 
-    pt = 0
-    Xm, Ym = DS
-
-    if time_counter:
-        tic = time.time()
-    for i in range(len(Xm)):
-        Xtest, Ytest = Xm[i], Ym[i]
-        
-        Xapp, Yapp = np.array(list(Xm[:i])+list(Xm[i+1:])), np.array(list(Ym[:i])+list(Ym[i+1:]))
-    
-        cl = copy.deepcopy(C)
-        cl.train(Xapp,Yapp)
-
-        if cl.accuracy([Xtest], [Ytest]) == 1 : pt+=1
-
-    if time_counter:
-        toc = time.time()
-        print(f'Result in {(toc-tic):0.4f} seconds.')
-    
-    return pt/len(Xm)
-
-    #################################
-    
-
-# Fuzzy verion
 def FuzzLOO(C, DS, mu, time_counter=False):
-    """ Classifieur * tuple[array, array] -> float
     """
-    ###################### A COMPLETER 
-    pt = 0
-    Xm, Ym = DS
+    Perform Leave-One-Out cross-validation for a classifier.
+
+    Args:
+        C: Classifier class (must have fit() and accuracy() methods)
+        DS: Tuple (X, Y) where X is a tensor of descriptions and Y is a tensor of labels
+        mu: List of Capacity objects for fuzzy similarity
+        time_counter (bool): If True, measure the execution time
+
+    Returns:
+        float: Accuracy over all leave-one-out runs
+    """
+    correct = 0
+    X, Y = DS
 
     if time_counter:
         tic = time.time()
-    for i in range(len(Xm)):
-        Xtest, Ytest = Xm[i], Ym[i]
-        
-        Xapp, Yapp = np.array(list(Xm[:i])+list(Xm[i+1:])), np.array(list(Ym[:i])+list(Ym[i+1:]))
 
-        cl = copy.deepcopy(C)
-        cl.train(desc_set=Xapp, label_set=Yapp)
+    for i in range(X.size(0)):
+        # Split into train and test
+        X_test = X[i].unsqueeze(0)           # Shape: [1, D]
+        Y_test = Y[i].unsqueeze(0)           # Shape: [1]
 
-        if cl.accuracy([Xtest], [Ytest]) == 1: pt += 1
+        X_train = torch.cat((X[:i], X[i+1:]), dim=0)
+        Y_train = torch.cat((Y[:i], Y[i+1:]), dim=0)
 
+        # Deep copy the classifier and re-fit
+        clf = copy.deepcopy(C)
+        clf.fit(X_train, Y_train)
+
+        # Evaluate
+        if clf.accuracy(X_test, Y_test) == 1:
+            correct += 1
     if time_counter:
         toc = time.time()
-        print(f'Result in {(toc-tic):0.4f} seconds.')
-    
-    return pt/len(Xm)
+        print(f'Result in {(toc - tic):.4f} seconds.')
+
+    return correct / X.size(0)

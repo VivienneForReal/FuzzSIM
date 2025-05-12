@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 # @author: H. T. Duong V.
 
-import torch
-import torch.nn.functional as F
+import numpy as np
+from fuzz_v1.src.norm import T_conorm, T_norm
+from fuzz_v1.utils import enumerate_permute_unit
+from fuzz_v1.src.capacity import locate_capacity
 
-from fuzz.src.norm import T_norm, T_conorm
-from fuzz.utils import enumerate_permute
-from fuzz.src.capacity import locate_capacity
-
-# Choquet
 class Choquet: 
     """
     Class to calculate the Choquet integral of a fuzzy set.
     """
     
-    def __init__(self, X: torch.Tensor, mu: float, version: str = 'classic'):
+    def __init__(self, X: np.ndarray, mu: float, version: str = 'classic'):
         """
         Initialize the Choquet class with two lists.
         
@@ -40,24 +37,22 @@ class Choquet:
         :return: Choquet integral of the dataset
         """
         # Get permutation of the input dataset
-        permutation = enumerate_permute(self.X)
+        permutation = enumerate_permute_unit(self.X)
         # Define choquet sum
         choquet = 0
         # Define the observation
-        observation = self.X[0]
+        observation = self.X
 
         # Get max permutation (last element)
-        perm_max = permutation[0,-1]
-        # print(f"perm_max: {perm_max}")
+        perm_max = permutation[-1]
 
         # TODO: Check if the implementation is correct
         for i in range(len(observation)):
-            val_check = F.pad(perm_max[i:], (0, len(observation) - len(perm_max[i:])), value=-1)
-            # print(f"val_check: {val_check}")
+            val_check = perm_max[i:]
             # Compute the capacity of the observation
             capacity_observation_i = locate_capacity(val_check, self.capacity)
 
-            val_check2 = F.pad(perm_max[i+1:], (0, len(observation) - len(perm_max[i+1:])), value=-1)
+            val_check2 = perm_max[i+1:]
             capacity_observation_i_1 = locate_capacity(val_check2, self.capacity)
 
             if i == len(observation):
@@ -70,9 +65,8 @@ class Choquet:
             choquet += (capacity_observation_i - capacity_observation_i_1) * observation[i]
         return float(choquet)
 
-
-# basic operators
-def s_intersection(X: torch.Tensor, Y: torch.Tensor, mode: str = 'P') -> torch.Tensor:
+# Basic pre-operations
+def s_intersection(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
     """
     Calculate the capacity of the intersection of two sets of values
     :param X: First set of values
@@ -86,7 +80,7 @@ def s_intersection(X: torch.Tensor, Y: torch.Tensor, mode: str = 'P') -> torch.T
     
     return T_norm(X, Y, mode=mode)
 
-def s_union(X: torch.Tensor, Y: torch.Tensor, mode: str = 'P') -> torch.Tensor:
+def s_union(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
     """
     Calculate the capacity of the union of two sets of values
     :param X: First set of values
@@ -100,44 +94,49 @@ def s_union(X: torch.Tensor, Y: torch.Tensor, mode: str = 'P') -> torch.Tensor:
             
     return T_conorm(X, Y, mode=mode)
 
-def s_triangle(X: torch.Tensor, Y: torch.Tensor, mode: str = 'P') -> torch.Tensor:
+
+def s_triangle(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
     """
-    Calculate the capacity of the triangle of two sets of values (X \ Y and Y \ X)
-    using a t-conorm in PyTorch.
+    Calculate the capacity of the triangle of two sets of values
+    :param X: First set of values
+    :param Y: Second set of values
+    :param mode: Type of t-conorm to use (M, P, L)
+    :return: Capacity of the difference of the two sets of values
+
+    Hyp: X \ Y takes the values of X that are not in Y and inversely
+    """
+    # Extract elements in X but not in Y
+    X_diff_Y = np.array([x if x not in Y else 0 for x in X], dtype=float)
+    # Extract elements in Y but not in X
+    Y_diff_X = np.array([y if y not in X else 0 for y in Y], dtype=float)
+
+    if len(X_diff_Y) != len(Y_diff_X):
+        raise ValueError("X_diff and Y_diff must have the same length")
+
+    return T_conorm(X_diff_Y, Y_diff_X, mode=mode)
+
+
+def s_diff(X: np.ndarray, Y: np.ndarray, mode: str = 'P', reverse: bool = False) -> np.ndarray:
+    """
+    Calculate the capacity of the difference of two sets of values
+    :param X: First set of values
+    :param Y: Second set of values
+    :param mode: Type of t-conorm to use (M, P, L)
+    :param reverse: If True, reverse the order of the sets
+    :return: Capacity of the difference of the two sets of values
+
+    Hyp: Y is normalized between 0 and 1, perform (.)^c = 1 - (.)
+    """
+    # Ensure X and Y have the same shape
+    if len(X) != len(Y):
+        raise ValueError("X and Y must have the same length")
     
-    :param X: First tensor
-    :param Y: Second tensor
-    :param mode: Type of t-conorm to use ('M', 'P', or 'L')
-    :return: Tensor representing the capacity of the difference
-    """
-    # X \ Y
-    X_diff = torch.where(torch.isin(X, Y), torch.tensor(0.0, device=X.device), X.float())
-    # Y \ X
-    Y_diff = torch.where(torch.isin(Y, X), torch.tensor(0.0, device=Y.device), Y.float())
-
-    if X_diff.shape != Y_diff.shape:
-        raise ValueError("X_diff and Y_diff must have the same shape")
-
-    return T_conorm(X_diff, Y_diff, mode=mode)
-
-
-def s_diff(X: torch.Tensor, Y: torch.Tensor, mode: str = 'P', reverse: bool = False) -> torch.Tensor:
-    """
-    Calculate the capacity of the difference of two sets using a t-norm in PyTorch.
-    
-    :param X: First tensor
-    :param Y: Second tensor
-    :param mode: Type of t-norm to use ('M', 'P', or 'L')
-    :param reverse: If True, perform Y \ X instead of X \ Y
-    :return: Tensor representing the capacity of the difference
-    """
-    if X.shape != Y.shape:
-        raise ValueError("X and Y must have the same shape")
-
     X_c = 1 - X
     Y_c = 1 - Y
 
-    if not reverse:
-        return T_norm(X, Y_c, mode=mode)  # X \ Y
+    if not reverse: 
+        # X \ Y
+        return T_norm(X, Y_c, mode=mode)
     else:
-        return T_norm(Y, X_c, mode=mode)  # Y \ X
+        # reverse -> Y \ X
+        return T_norm(Y, X_c, mode=mode)

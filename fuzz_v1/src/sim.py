@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 # @author: H. T. Duong V.
 
-import torch
-from typing import List
+import numpy as np
+from typing import Callable, List, Tuple
+import random
+random.seed(42)
 
-from fuzz.src.capacity import Capacity
-from fuzz.src.choquet import *
+from fuzz_v1.src.choquet import Choquet, s_intersection, s_union, s_triangle, s_diff
+from fuzz_v1.src.capacity import Capacity
+
 class FuzzSIM:
     """
     Class for Fuzzy SIM (Similarity) calculations.
     """
 
-    def __init__(self, X: torch.Tensor, Y: torch.Tensor, mu: List[Capacity], mode='P', choquet_version='classic'): 
+    def __init__(self, X: np.ndarray, Y: np.ndarray, mu: List[Capacity], mode='P', choquet_version='classic'): 
         """
         Initialize the FuzzSIM class with a dataset and its labels.
 
@@ -42,7 +45,7 @@ class S1(FuzzSIM):
     Class for Fuzzy SIM Level 1 calculations.
     """
     
-    def __init__(self, X: torch.Tensor, Y: torch.Tensor, mu: List[Capacity], mode='P', choquet_version='classic'): 
+    def __init__(self, X: np.ndarray, Y: np.ndarray, mu: List[Capacity], mode='P', choquet_version='classic'): 
         """
         Initialize the FuzzSIM Level 1 class with a dataset and its labels.
 
@@ -56,7 +59,7 @@ class S1(FuzzSIM):
     def score(self, verbose=False):
         intersection = Choquet(s_intersection(self.X, self.Y, mode=self.mode), mu=self.capacity, version=self.choquet_version).choquet
         union = Choquet(s_union(self.X, self.Y, mode=self.mode), mu=self.capacity, version=self.choquet_version).choquet
-
+        
         # Avoid division by zero
         if union == 0:
             raise ValueError("Union is zero, cannot compute similarity score.")
@@ -70,7 +73,7 @@ class S2(FuzzSIM):
     Class for Fuzzy SIM Level 2 calculations.
     """
     
-    def __init__(self, X: torch.Tensor, Y: torch.Tensor, mu: List[Capacity], mode='P', choquet_version='classic'): 
+    def __init__(self, X: np.ndarray, Y: np.ndarray, mu: List[Capacity], mode='P', choquet_version='classic'): 
         """
         Initialize the FuzzSIM Level 2 class with a dataset and its labels.
 
@@ -84,7 +87,7 @@ class S2(FuzzSIM):
     def score(self, verbose=False):
         triangle = Choquet(s_triangle(self.X, self.Y, mode=self.mode), mu=self.capacity, version=self.choquet_version).choquet
         intersection = Choquet(s_intersection(self.X, self.Y, mode=self.mode), mu=self.capacity, version=self.choquet_version).choquet
-
+        
         # Avoid division by zero
         if (triangle + intersection) == 0:
             raise ValueError("Triangle and intersection sum to zero, cannot compute similarity score.")
@@ -96,7 +99,7 @@ class S3(FuzzSIM):
     Class for Fuzzy SIM Level 3 calculations.
     """
     
-    def __init__(self, X: torch.Tensor, Y: torch.Tensor, mu: List[Capacity], mode='P', choquet_version='classic'): 
+    def __init__(self, X: np.ndarray, Y: np.ndarray, mu: List[Capacity], mode='P', choquet_version='classic'): 
         """
         Initialize the FuzzSIM Level 3 class with a dataset and its labels.
 
