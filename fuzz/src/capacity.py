@@ -33,16 +33,16 @@ class Capacity:
 def locate_capacity(X: torch.Tensor, capacity: List[Capacity]) -> float:
     """
     Locate the capacity of the fuzzy set.
-    
-    :param X: list of values.
-    :param capacity: associated capacity.
+
+    :param X: list of values (1D tensor).
+    :param capacity: list of Capacity objects with X attribute as tensor.
     :return: capacity of the fuzzy set.
     """
-    for i in range(len(capacity)):
-        # print(X, capacity[i].X)
-        if torch.equal(X, capacity[i].X):
-            return capacity[i].get_capacity()
-        
+    X_sorted = torch.sort(X)[0]
+    for cap in capacity:
+        if torch.equal(X_sorted, torch.sort(cap.X)[0]):
+            return cap.get_capacity()
+    
     raise ValueError("Capacity not found for the given values.")
 
 
