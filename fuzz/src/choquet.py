@@ -68,7 +68,7 @@ class Choquet:
             if verbose:
                 print(f"val_check: {val_check} - capacity_observation_i: {capacity_observation_i} - val_check2: {val_check2} - capacity_observation_i_1: {capacity_observation_i_1}")
             choquet += (capacity_observation_i - capacity_observation_i_1) * observation[i]
-        return float(choquet)
+        return choquet
 
 
 # basic operators

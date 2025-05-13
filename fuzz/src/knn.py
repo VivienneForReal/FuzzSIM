@@ -71,8 +71,20 @@ class KNNFuzz:
         """
         preds = torch.tensor([self.predict(desc_set[i].unsqueeze(0)) for i in range(desc_set.size(0))])
         correct = (preds == label_set).sum()
-        return correct.float() / desc_set.size(0)
+        return correct / desc_set.size(0)
 
+
+
+
+
+# NCA Fuzz KNN Classifier
+class NCATransform(torch.nn.Module):
+    def __init__(self, input_dim, output_dim):
+        super().__init__()
+        self.A = torch.nn.Parameter(torch.randn(output_dim, input_dim) * 0.01)
+
+    def forward(self, x):
+        return torch.matmul(x, self.A.t())
 
 class NCAFuzzKNN(KNNFuzz):
     """
@@ -110,9 +122,7 @@ class NCAFuzzKNN(KNNFuzz):
         self.output_dimension = output_dimension
 
         # Initialize NCA model
-        self.nca = torch.nn.Module()
-        # Initialize A with small random values
-        self.nca.A = torch.nn.Parameter(torch.randn(output_dimension, input_dimension) * 0.01)
+        self.nca = NCATransform(input_dimension, output_dimension)
         
         # Store transformed data
         self.transformed_desc_set = None
@@ -132,8 +142,7 @@ class NCAFuzzKNN(KNNFuzz):
             Transformed data.
         """
         # Apply the transformation
-        transformed_x = torch.matmul(x, self.nca.A.t())
-        return transformed_x
+        return self.nca(x)
     
     def compute_pij(self, transformed_x: torch.Tensor, mu_transformed: List[Capacity]) -> torch.Tensor:
         """
@@ -218,12 +227,11 @@ class NCAFuzzKNN(KNNFuzz):
     
     def fit(
             self, 
-                desc_set: torch.Tensor,
-                label_set: torch.Tensor,
-                mu: List[Capacity],
-                num_epochs: int = 100,
-                learning_rate: float = 0.01,
-                batch_size: int = 32,
+            desc_set: torch.Tensor,
+            label_set: torch.Tensor,
+            num_epochs: int = 100,
+            learning_rate: float = 0.01,
+            batch_size: int = 32,
     ):
         """
         Fit the NCA Fuzz KNN classifier to the training data.
@@ -283,7 +291,7 @@ class NCAFuzzKNN(KNNFuzz):
                 optimizer.zero_grad()
                 
                 # Compute loss
-                loss = nca.loss(x=batch_x, labels=batch_y)
+                loss = self.loss(x=batch_x, labels=batch_y)
 
                 # Backward pass and optimization
                 loss.backward()
