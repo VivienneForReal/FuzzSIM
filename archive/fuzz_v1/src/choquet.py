@@ -97,22 +97,19 @@ def s_union(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
 
 def s_triangle(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
     """
-    Calculate the capacity of the triangle of two sets of values
-    :param X: First set of values
-    :param Y: Second set of values
-    :param mode: Type of t-conorm to use (M, P, L)
-    :return: Capacity of the difference of the two sets of values
-
-    Hyp: X \ Y takes the values of X that are not in Y and inversely
+    Calculate the capacity of the triangle (symmetric difference) of two fuzzy sets
+    :param X: First set of fuzzy membership values
+    :param Y: Second set of fuzzy membership values
+    :param mode: Type of t-norm/t-conorm to use (M, P, L)
+    :return: Fuzzy symmetric difference
     """
-    # Extract elements in X but not in Y
-    X_diff_Y = np.array([x if x not in Y else 0 for x in X], dtype=float)
-    # Extract elements in Y but not in X
-    Y_diff_X = np.array([y if y not in X else 0 for y in Y], dtype=float)
-
-    if len(X_diff_Y) != len(Y_diff_X):
-        raise ValueError("X_diff and Y_diff must have the same length")
-
+    # Calculate X \ Y (elements in X but not in Y)
+    X_diff_Y = s_diff(X, Y, mode=mode, reverse=False)
+    
+    # Calculate Y \ X (elements in Y but not in X)
+    Y_diff_X = s_diff(X, Y, mode=mode, reverse=True)
+    
+    # Symmetric difference is the union of the two differences
     return T_conorm(X_diff_Y, Y_diff_X, mode=mode)
 
 

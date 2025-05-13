@@ -4,8 +4,10 @@
 import torch
 import time
 import copy
+from typing import Tuple, List
+from fuzz.src.capacity import Capacity
 
-def FuzzLOO(C, DS, mu, time_counter=False):
+def FuzzLOO(C, DS: Tuple[torch.Tensor, torch.Tensor], mu: List[Capacity], time_counter=False) -> torch.Tensor:
     """
     Perform Leave-One-Out cross-validation for a classifier.
 
@@ -16,7 +18,7 @@ def FuzzLOO(C, DS, mu, time_counter=False):
         time_counter (bool): If True, measure the execution time
 
     Returns:
-        float: Accuracy over all leave-one-out runs
+        torch.Tensor: Accuracy over all leave-one-out runs
     """
     correct = 0
     X, Y = DS

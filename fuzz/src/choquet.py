@@ -68,7 +68,7 @@ class Choquet:
             if verbose:
                 print(f"val_check: {val_check} - capacity_observation_i: {capacity_observation_i} - val_check2: {val_check2} - capacity_observation_i_1: {capacity_observation_i_1}")
             choquet += (capacity_observation_i - capacity_observation_i_1) * observation[i]
-        return float(choquet)
+        return choquet
 
 
 # basic operators
@@ -109,11 +109,13 @@ def s_triangle(X: torch.Tensor, Y: torch.Tensor, mode: str = 'P') -> torch.Tenso
     :param Y: Second tensor
     :param mode: Type of t-conorm to use ('M', 'P', or 'L')
     :return: Tensor representing the capacity of the difference
+
+    Hypothesis: X triangle Y = T_conorm(X \ Y, Y \ X) = T_conorm(T_norm(X, Y^c), T_norm(Y, X^c))
     """
     # X \ Y
-    X_diff = torch.where(torch.isin(X, Y), torch.tensor(0.0, device=X.device), X.float())
+    X_diff = s_diff(X, Y, mode=mode, reverse=False)
     # Y \ X
-    Y_diff = torch.where(torch.isin(Y, X), torch.tensor(0.0, device=Y.device), Y.float())
+    Y_diff = s_diff(X, Y, mode=mode, reverse=True)
 
     if X_diff.shape != Y_diff.shape:
         raise ValueError("X_diff and Y_diff must have the same shape")

@@ -11,7 +11,7 @@ class Capacity:
     Class to calculate the capacity of a fuzzy set.
     """
     
-    def __init__(self, X: torch.Tensor, mu: float):
+    def __init__(self, X: torch.Tensor, mu: torch.float):
         """
         Initialize the Capacity class with two tensors.
 
@@ -21,7 +21,7 @@ class Capacity:
         self.X = X
         self.mu = mu
 
-    def get_capacity(self) -> float:
+    def get_capacity(self) -> torch.float:
         """
         Calculate the capacity of the fuzzy set.
         
@@ -30,7 +30,7 @@ class Capacity:
         return self.mu
     
 # Capacity locator
-def locate_capacity(X: torch.Tensor, capacity: List[Capacity]) -> float:
+def locate_capacity(X: torch.Tensor, capacity: List[Capacity]) -> torch.float:
     """
     Locate the capacity of the fuzzy set.
 
