@@ -61,9 +61,12 @@ class S1(FuzzSIM):
         if union == 0:
             raise ValueError("Union is zero, cannot compute similarity score.")
             
+        res = intersection / union
+
         if verbose:
-            print(f"Intersection: {intersection}, Union: {union}")
-        return intersection / union
+            print(f"Intersection: {intersection}, Union: {union}, Score: {res}")
+
+        return res
     
 class S2(FuzzSIM):
     """
@@ -88,8 +91,12 @@ class S2(FuzzSIM):
         # Avoid division by zero
         if (triangle + intersection) == 0:
             raise ValueError("Triangle and intersection sum to zero, cannot compute similarity score.")
-            
-        return intersection / (triangle + intersection)
+
+        res = intersection / (triangle + intersection)
+
+        if verbose:
+            print(f"Intersection: {intersection}, Triangle: {triangle}, Score: {res}")
+        return res
 
 class S3(FuzzSIM):
     """
@@ -116,5 +123,9 @@ class S3(FuzzSIM):
         denominator = diff + diff_rev + intersection
         if denominator == 0:
             raise ValueError("Denominator is zero, cannot compute similarity score.")
-            
-        return intersection / denominator
+
+        res = intersection / denominator
+        if verbose:
+            print(f"Intersection: {intersection}, Diff: {diff}, Diff Rev: {diff_rev}, Denominator: {denominator}, Score: {res}")
+
+        return res

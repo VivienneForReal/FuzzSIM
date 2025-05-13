@@ -10,7 +10,7 @@ from fuzz.src.capacity import Capacity
 from fuzz.src.sim import FuzzSIM, S1
 
 class KNNFuzz:
-    def __init__(self, input_dimension: int, mu: List[Capacity], k: int = 3, sim: FuzzSIM = S1):
+    def __init__(self, input_dimension: int, mu: List[Capacity], sim: FuzzSIM, k: int = 3):
         """ KNN avec une distance de type fuzz
             k: le nombre de voisins à prendre en compte
             sim: la fonction de similarité à utiliser
@@ -18,7 +18,6 @@ class KNNFuzz:
         # super().__init__(input_dimension=input_dimension, k=k)
         self.input_dimension = input_dimension
         self.k = k
-        self.sim = sim
         self.sim = sim
         self.mu = mu
 
