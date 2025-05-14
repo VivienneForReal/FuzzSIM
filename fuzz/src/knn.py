@@ -79,6 +79,7 @@ class KNNFuzz:
 
 # NCA Fuzz KNN Classifier
 class NCATransform(torch.nn.Module):
+    # TODO: giảm chiều cho cả mu
     def __init__(self, input_dim, output_dim):
         super().__init__()
         self.A = torch.nn.Parameter(torch.randn(output_dim, input_dim) * 0.01)
