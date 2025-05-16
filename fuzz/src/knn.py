@@ -10,6 +10,7 @@ from fuzz.src.capacity import Capacity, generate_capacity
 from fuzz.utils import enumerate_permute
 from fuzz.src.sim import FuzzSIM, S1
 from fuzz.src.norm import normalize
+from fuzz.eval import FuzzLOO
 
 class KNNFuzz:
     def __init__(self, input_dimension: int, mu: List[Capacity], sim: FuzzSIM, k: int = 3):
@@ -171,8 +172,8 @@ class NCAFuzzKNN(KNNFuzz):
                 if i != j:  # Exclude self-similarity
                     sim_matrix[i, j] = S1(transformed_x[i].unsqueeze(0), transformed_x[j].unsqueeze(0), mu_transformed).score()
 
-        # Convert to torch tensor
-        sim_tensor = torch.tensor(sim_matrix, dtype=torch.float32)
+        # # Convert to torch tensor
+        # sim_tensor = torch.tensor(sim_matrix, dtype=torch.float32)
 
         # Apply softmax to get probabilities
         # We need to handle the diagonal separately (set to 0)
@@ -200,17 +201,17 @@ class NCAFuzzKNN(KNNFuzz):
         torch.Tensor
             Loss value.
         """
-        # Transform the input data
-        transformed_x = self.transform(x)
+        # # Transform the input data
+        # transformed_x = self.transform(x)
 
-        # Normalize the transformed data
-        transformed_x = normalize(transformed_x)
+        # # Normalize the transformed data
+        # transformed_x = normalize(transformed_x)
 
-        # Regenerate the mu list for the transformed data
-        mu_transformed = generate_capacity(enumerate_permute(transformed_x[0].unsqueeze(0))[0])
+        # # Regenerate the mu list for the transformed data
+        # mu_transformed = generate_capacity(enumerate_permute(transformed_x[0].unsqueeze(0))[0])
 
         # Compute the stochastic neighbor probabilities p_ij
-        pij = self.compute_pij(transformed_x, mu_transformed)
+        pij = self.compute_pij(x, self.mu)
 
         # Create a mask for same-class examples
         n = x.size(0)
@@ -259,6 +260,10 @@ class NCAFuzzKNN(KNNFuzz):
         self.desc_set = desc_set
         self.label_set = label_set
 
+        # Transform the training data using the learned transformation
+        self.transformed_desc_set = self.transform(desc_set)
+        self.transformed_desc_set = normalize(self.transformed_desc_set)
+
         # Initialize optimizer
         optimizer = torch.optim.Adam([self.nca.A], lr=learning_rate)
 
@@ -282,34 +287,32 @@ class NCAFuzzKNN(KNNFuzz):
                 batch_indices = indices[start_idx:min(start_idx + batch_size, n_samples)]
                 
                 # Get batch data
-                batch_x = desc_set[batch_indices]
+                batch_x = self.transformed_desc_set[batch_indices]
                 batch_y = label_set[batch_indices]
 
-                # Regenerate the mu list for the batch
-                mu_transformed = generate_capacity(enumerate_permute(batch_x[0].unsqueeze(0))[0])
-                
+                # # Regenerate the mu list for the batch
+                # mu_transformed = generate_capacity(enumerate_permute(batch_x[0].unsqueeze(0))[0])
+
                 # Compute loss
                 loss = self.loss(x=batch_x, labels=batch_y)
+                print(f"loss: {loss}")
 
                 # Zero the gradients
                 optimizer.zero_grad()
-                
+
                 # Backward pass and optimization
-                loss.backward()
+                loss.backward(retain_graph=True)
                 optimizer.step()
-                
+
                 epoch_loss += loss.item() * len(batch_indices)
-            
+
             # Average loss for the epoch
             avg_loss = epoch_loss / n_samples
             losses.append(avg_loss)
-            
+
             # Print progress
             if (epoch + 1) % 10 == 0:
                 print(f"Epoch {epoch+1}/{num_epochs}, Loss: {avg_loss:.4f}")
-        
-        # Transform the training data using the learned transformation
-        self.transformed_desc_set = self.transform(desc_set)
         
         print(f"NCA training complete. Final loss: {losses[-1]:.4f}")
 
