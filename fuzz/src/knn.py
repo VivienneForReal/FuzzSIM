@@ -288,12 +288,12 @@ class NCAFuzzKNN(KNNFuzz):
                 # Regenerate the mu list for the batch
                 mu_transformed = generate_capacity(enumerate_permute(batch_x[0].unsqueeze(0))[0])
                 
-                # Zero the gradients
-                optimizer.zero_grad()
-                
                 # Compute loss
                 loss = self.loss(x=batch_x, labels=batch_y)
 
+                # Zero the gradients
+                optimizer.zero_grad()
+                
                 # Backward pass and optimization
                 loss.backward()
                 optimizer.step()
