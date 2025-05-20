@@ -40,7 +40,7 @@ def locate_capacity(X: torch.Tensor, capacity: List[Capacity]) -> torch.float:
     """
     X_sorted = torch.sort(X)[0]
     for cap in capacity:
-        if torch.equal(X_sorted, torch.sort(cap.X)[0]):
+        if torch.isin(X_sorted, torch.sort(cap.X)[0]).all():
             return cap.get_capacity()
     
     raise ValueError("Capacity not found for the given values.")

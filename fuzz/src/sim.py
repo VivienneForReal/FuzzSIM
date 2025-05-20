@@ -5,7 +5,8 @@ import torch
 from typing import List
 
 from fuzz.src.capacity import Capacity
-from fuzz.src.choquet import *
+from fuzz.src.choquet.utils import *
+from fuzz.src.choquet.choquet import Choquet
 class FuzzSIM:
     """
     Class for Fuzzy SIM (Similarity) calculations.

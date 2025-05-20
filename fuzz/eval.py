@@ -35,7 +35,7 @@ def FuzzLOO(C, DS: Tuple[torch.Tensor, torch.Tensor], mu: List[Capacity], time_c
         Y_train = torch.cat((Y[:i], Y[i+1:]), dim=0)
 
         # Deep copy the classifier and re-fit
-        clf = copy.deepcopy(C)
+        clf = C # copy.deepcopy(C)
         clf.fit(X_train, Y_train)
 
         # Evaluate
