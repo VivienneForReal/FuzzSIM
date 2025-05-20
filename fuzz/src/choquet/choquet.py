@@ -5,8 +5,7 @@ import torch
 import torch.nn.functional as F
 from typing import List
 
-from fuzz.utils import enumerate_permute
-from fuzz.src.capacity import locate_capacity, Capacity
+from fuzz.src.capacity import Capacity
 from fuzz.src.choquet.classic import Choquet_classic
 
 # Choquet

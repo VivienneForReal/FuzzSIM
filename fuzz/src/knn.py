@@ -146,7 +146,7 @@ class NCAFuzzKNN(KNNFuzz):
         # Apply the transformation
         return self.nca(x)
     
-    def compute_pij(self, transformed_x: torch.Tensor, mu_transformed: List[Capacity]) -> torch.Tensor:
+    def compute_pij(self, transformed_x: torch.Tensor) -> torch.Tensor:
         """
         Compute the stochastic neighbor probabilities p_ij based on fuzzy similarities.
         
@@ -165,12 +165,21 @@ class NCAFuzzKNN(KNNFuzz):
         """
         n = transformed_x.size(0)
 
+        # Check dim of transformed_x with mu
+        m = transformed_x.size(1)
+        diff_len = len(self.mu[0].X) - m
+        # TODO: complete this part
+        if len(self.mu) != m:
+            print(f"len(mu): {len(self.mu)} - m: {m}")
+            for i in range(len(self.mu)):
+                self.mu[i].X = pop_nb_elem(self.mu[i].X, diff_len)
+
         # Compute pairwise similarities
         sim_matrix = torch.zeros((n, n))
         for i in range(n):
             for j in range(n):
                 if i != j:  # Exclude self-similarity
-                    sim_matrix[i, j] = S1(transformed_x[i].unsqueeze(0), transformed_x[j].unsqueeze(0), mu_transformed).score()
+                    sim_matrix[i, j] = S1(transformed_x[i].unsqueeze(0), transformed_x[j].unsqueeze(0), self.mu).score()
 
         # # Convert to torch tensor
         # sim_tensor = torch.tensor(sim_matrix, dtype=torch.float32)
@@ -201,17 +210,8 @@ class NCAFuzzKNN(KNNFuzz):
         torch.Tensor
             Loss value.
         """
-        # # Transform the input data
-        # transformed_x = self.transform(x)
-
-        # # Normalize the transformed data
-        # transformed_x = normalize(transformed_x)
-
-        # # Regenerate the mu list for the transformed data
-        # mu_transformed = generate_capacity(enumerate_permute(transformed_x[0].unsqueeze(0))[0])
-
         # Compute the stochastic neighbor probabilities p_ij
-        pij = self.compute_pij(x, self.mu)
+        pij = self.compute_pij(x)          # TODO: check mu implementation
 
         # Create a mask for same-class examples
         n = x.size(0)
@@ -290,9 +290,6 @@ class NCAFuzzKNN(KNNFuzz):
                 batch_x = self.transformed_desc_set[batch_indices]
                 batch_y = label_set[batch_indices]
 
-                # # Regenerate the mu list for the batch
-                # mu_transformed = generate_capacity(enumerate_permute(batch_x[0].unsqueeze(0))[0])
-
                 # Compute loss
                 loss = self.loss(x=batch_x, labels=batch_y)
                 print(f"loss: {loss}")
@@ -317,3 +314,30 @@ class NCAFuzzKNN(KNNFuzz):
         print(f"NCA training complete. Final loss: {losses[-1]:.4f}")
 
         return losses
+    
+
+def pop_nb_elem(tensor, diff_len):
+    """
+    Remove `diff_len` elements from the tensor:
+    - If min == -1: remove the first `diff_len` occurrences of -1
+    - Else: remove the largest `diff_len` elements
+
+    :param tensor: 1D PyTorch tensor of integers
+    :param diff_len: number of elements to remove
+    :return: 1D PyTorch tensor with `diff_len` elements removed, dtype=int
+    """
+    tensor = tensor.clone()  # Avoid modifying original tensor
+    if tensor.min().item() == -1:
+        # Find indices where tensor == -1
+        indices = (tensor == -1).nonzero(as_tuple=True)[0]
+        remove_indices = indices[:diff_len]
+
+    else: 
+        return tensor.to(torch.int64)
+
+    # Create a boolean mask to exclude the indices
+    mask = torch.ones(tensor.size(0), dtype=torch.bool)
+    mask[remove_indices] = False
+
+    # Return filtered tensor as int type
+    return tensor[mask].to(torch.int64)
