@@ -25,7 +25,6 @@ def Choquet_classic(X: torch.Tensor, mu: List[Capacity], verbose: bool = False) 
     perm_max = permutation[0,-1]
     # print(f"perm_max: {perm_max}")
 
-    # TODO: Check if the implementation is correct
     for i in range(len(observation)):
         val_check = F.pad(perm_max[i:], (0, len(observation) - len(perm_max[i:])), value=-1)
         # print(f"val_check: {val_check}")

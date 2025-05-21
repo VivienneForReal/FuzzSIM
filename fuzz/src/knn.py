@@ -13,7 +13,14 @@ from fuzz.src.norm import normalize
 from fuzz.eval import FuzzLOO
 
 class KNNFuzz:
-    def __init__(self, input_dimension: int, mu: List[Capacity], sim: FuzzSIM, k: int = 3):
+    def __init__(
+            self, 
+            input_dimension: int, 
+            mu: List[Capacity], 
+            sim: FuzzSIM, 
+            k: int = 3,
+            choquet_version: str = 'classic'
+    ):
         """ KNN avec une distance de type fuzz
             k: le nombre de voisins à prendre en compte
             sim: la fonction de similarité à utiliser
@@ -23,6 +30,7 @@ class KNNFuzz:
         self.k = k
         self.sim = sim
         self.mu = mu
+        self.choquet_version = choquet_version
 
     def score(self, x: torch.Tensor) -> torch.Tensor:
         """ 
@@ -33,10 +41,12 @@ class KNNFuzz:
         if x.size(1) != self.input_dimension:
             raise ValueError(f"Dimension of x should be {self.input_dimension}, but got {x.size()}")
 
-        similarity = [self.sim(x, self.desc_set[j].unsqueeze(0), self.mu).score() for j in range(self.desc_set.size(0))]
+        similarity = [self.sim(x, self.desc_set[j].unsqueeze(0), self.mu, choquet_version=self.choquet_version).score() for j in range(self.desc_set.size(0))]
+        # print(f"similarity: {similarity}")
 
         # Check closest points - highest similarity
         nearest_indices = list(np.argsort(similarity)[-self.k:][::-1])
+        # print(f"nearest_indices: {nearest_indices}")
         nearest_labels = self.label_set[nearest_indices]
         
         # Count the occurrences of each label among the nearest neighbors
