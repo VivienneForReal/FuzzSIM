@@ -43,7 +43,7 @@ def d_Choquet_integral(X: torch.Tensor, mu: List, p: float = 1.0, q: float = 1.0
     - verbose: Whether to print intermediate values for debugging
     
     Returns:
-    - d-Choquet integral value
+    - d-Choquet integral value as a scalar tensor
     """
     # print(f"X: {X}")
     # Get permutation of the input dataset
@@ -74,4 +74,10 @@ def d_Choquet_integral(X: torch.Tensor, mu: List, p: float = 1.0, q: float = 1.0
 
         if verbose:
             print(f"val_check: {val_check} - dissim: {dissim} - choquet: {choquet}")
-    return choquet
+    
+   # If choquet is already a tensor, ensure it has no extra dimensions
+    if isinstance(choquet, torch.Tensor):
+        return choquet.squeeze()
+    
+    # If it's a scalar or other value, ensure it's returned directly as a scalar tensor
+    return torch.tensor(choquet, dtype=torch.float32)
