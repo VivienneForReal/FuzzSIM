@@ -6,7 +6,7 @@ from typing import Callable, List, Tuple
 import random
 random.seed(42)
 
-from fuzz.src.choquet import Choquet, s_intersection, s_union, s_triangle, s_diff
+from fuzz.choquet.choquet import Choquet, s_intersection, s_union, s_triangle, s_diff
 from fuzz.src.capacity import Capacity
 
 class FuzzSIM:
