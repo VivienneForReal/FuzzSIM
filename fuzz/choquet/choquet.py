@@ -8,13 +8,14 @@ from fuzz.src.capacity import locate_capacity, Capacity
 from typing import List
 
 from fuzz.choquet.classic import Choquet_classic
+from fuzz.choquet.d_choquet import *
 
 class Choquet: 
     """
     Class to calculate the Choquet integral of a fuzzy set.
     """
     
-    def __init__(self, X: np.ndarray, mu: List[Capacity], version: str = 'classic'):
+    def __init__(self, X: np.ndarray, mu: List[Capacity], version: str = 'classic', p: float = None, q: float = None):
         """
         Initialize the Choquet class with two lists.
         
@@ -30,11 +31,26 @@ class Choquet:
         self.capacity = mu
         if version == "classic":
             self.choquet = self.Choquet_classic()
+        elif version == "d_choquet":
+            if p is None or q is None:
+                raise ValueError("p and q must be provided for D-Choquet integral.")
+            self.choquet = self.d_Choquet_integral(p = p, q = q)
         else:
             raise ValueError("Unsupported Choquet version provided.")
     
     def Choquet_classic(self, verbose: bool = False) -> float: 
         return Choquet_classic(self.X, self.capacity, verbose=verbose)
+
+    def d_Choquet_integral(self, p: float, q: float, verbose: bool = False) -> float:
+        """
+        Calculate the D-Choquet integral of the fuzzy set.
+
+        :param p: Parameter p for the D-Choquet integral.
+        :param q: Parameter q for the D-Choquet integral.
+        :param verbose: If True, print detailed information about the calculation.
+        :return: The D-Choquet integral value.
+        """
+        return d_Choquet_integral(self.X, self.capacity, p=p, q=q, verbose=verbose)
 
 # Basic pre-operations
 def s_intersection(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:

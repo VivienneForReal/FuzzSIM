@@ -51,7 +51,7 @@ class KNN(Classifier):
         self.label_set = label_set
 
 class KNNFuzz(KNN):
-    def __init__(self, input_dimension: int, mu: List[Capacity], k: int = 3, sim: FuzzSIM = S1):
+    def __init__(self, input_dimension: int, mu: List[Capacity], k: int = 3, sim: FuzzSIM = S1, choquet_version: str = 'classic', sim_mode: str = 'P', p: float = None, q: float = None):
         """ KNN avec une distance de type fuzz
             k: le nombre de voisins à prendre en compte
             sim: la fonction de similarité à utiliser
@@ -59,7 +59,11 @@ class KNNFuzz(KNN):
         super().__init__(input_dimension=input_dimension, k=k)
         self.sim = sim
         self.mu = mu
-    
+        self.choquet_version = choquet_version
+        self.sim_mode = sim_mode
+        self.p = p
+        self.q = q
+
     def score(self, x: np.ndarray):
         """ 
         Calculate the similarity score for the input x.
@@ -68,9 +72,9 @@ class KNNFuzz(KNN):
         """
         if len(x) != self.input_dimension:
             raise ValueError(f"Dimension of x should be {self.input_dimension}, but got {len(x)}")
-        
-        similarity = [self.sim(x, self.desc_set[j], self.mu).score() for j in range(len(self.desc_set))]
-        
+
+        similarity = [self.sim(x, self.desc_set[j], self.mu, choquet_version=self.choquet_version, mode=self.sim_mode, p=self.p, q=self.q).score() for j in range(len(self.desc_set))]
+
         similarity = np.array(similarity)
 
         # Check closest points - highest similarity
