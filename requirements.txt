@@ -7,3 +7,11 @@ pyswarms
 plotly
 palmerpenguins
 nbformat
+torch
+torchvision
+torchaudio
+"stable-baselines3[extra]"
+matplotlib
+pandas
+scikit-learn
+tensorboard
