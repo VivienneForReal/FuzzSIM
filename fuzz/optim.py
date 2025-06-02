@@ -80,11 +80,11 @@ def fitness_function(X: np.ndarray, DS: Tuple[np.ndarray, np.ndarray], C) -> np.
     results = []
     for x in X:
         # Apply softmax to get valid capacity values that sum to 1
-        mu_soft = softmax(x)
+        X_p = softmax(x)
         
         # Create capacity from vector
-        capacity = generate_capacity(enumerate_permute_unit(mu_soft))
-        
+        capacity = generate_capacity(enumerate_permute_unit(X_p))
+
         # Evaluate LOO accuracy
         acc = FuzzLOO(C, DS, capacity)
         
