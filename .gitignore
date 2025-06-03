@@ -2,7 +2,7 @@ data/
 __pycache__/
 *.pyc
 *.ipynb_checkpoints/
-*.ipynb
+# *.ipynb
 .DS_Store
 .vscode/
 *.pt
