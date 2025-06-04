@@ -203,7 +203,7 @@ def monotonic_check_unit(X: Capacity, Y: Capacity) -> bool:
                 return True
     return False
 
-def monotonic_check(X: List[Capacity]) -> bool:
+def is_monotonic(X: List[Capacity]) -> bool:
     """
     Check if the capacities in the list are monotonic.
     """
