@@ -143,11 +143,12 @@ def mobius_to_capacity(m: List[Capacity], feature_indices: List[int]) -> List[Ca
 
 
 # Function for Mobius manip
+# Each individual is a dictionary of Möbius values
 def mutate(mobius, mutation_rate=0.1):
     new_mobius = mobius.copy()
-    for key in mobius:
+    for i in range(len(mobius)):
         if np.random.rand() < mutation_rate:
-            new_mobius[key] = np.clip(mobius[key] + np.random.uniform(-0.1, 0.1), 0, 1)
+            new_mobius[i] = Capacity(mobius[i].X, np.clip(mobius[i].mu + np.random.uniform(-0.1, 0.1), 0, 1))
     return new_mobius
 
 def crossover(parent1, parent2):
