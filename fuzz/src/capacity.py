@@ -215,3 +215,9 @@ def monotonic_check(X: List[Capacity]) -> bool:
             print()
             return False
     return True
+
+def check_fit_mobius(mobius, len_features):
+    """
+    Notice: We need to pop the empty set (ø) from the mobius list to check the fit of the mobius before using this function.
+    """
+    return True if len(mobius) == len_features + len_features * (len_features - 1) / 2 else False
