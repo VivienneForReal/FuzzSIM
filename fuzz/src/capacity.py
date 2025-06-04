@@ -9,6 +9,7 @@ from itertools import combinations
 from typing import Dict, FrozenSet, List
 
 from fuzz.utils import powerset
+from fuzz.src.norm import norm
 
 class Capacity:
     """
@@ -91,23 +92,23 @@ def generate_capacity(lst_val: List[int]) -> List[Capacity]:
 Note: 
 - As for present, we will use a random 2-additive Möbius measure to generate the capacity instead of using the previous method.
 """
-def generate_mobius(feature_indices: List[int]) -> List[Capacity]:
-    """Generate a random 2-additive Möbius measure."""
-    m = {}
-    # Singleton terms
-    for i in feature_indices:
-        m[frozenset([i])] = np.random.rand()
+def generate_mobius(feature_indices: List[int], n_additive: int = 2) -> List[Capacity]:
+    """
+    Generate a random n-additive Möbius measure.
     
-    # Pairwise interaction terms (2-additive)
-    for i, j in combinations(feature_indices, 2):
-        m[frozenset([i, j])] = np.random.rand()
-
-    m[frozenset()] = 0.0
-
-    tmp = []
-    # Convert to fit with Capacity implementation
-    for k, v in m.items():
-        tmp.append(Capacity(list(k), v))
+    :param feature_indices: List of feature indices (e.g., [0, 1, 2])
+    :param n_additive: Maximum size of subsets to include (k-additive)
+    :return: List of Capacity objects, where each is Capacity(subset: List[int], value: float)
+    """
+    m = {frozenset(): 0.0}  # baseline
+    
+    # Include subsets of size 1 to n_additive
+    for k in range(1, n_additive + 1):
+        for comb in combinations(feature_indices, k):
+            m[frozenset(comb)] = np.random.rand()
+    
+    # Convert to list of Capacity objects
+    tmp = [Capacity(list(k), v) for k, v in m.items()]
     return tmp
 
 def mobius_to_capacity(m: List[Capacity], feature_indices: List[int]) -> List[Capacity]:
