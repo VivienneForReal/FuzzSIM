@@ -167,3 +167,27 @@ def crossover(parent1, parent2):
         else:
             child.append(Capacity(parent2[i].X, c_2))
     return child
+
+# Check monotonicity
+def monotonic_check_unit(X: Capacity, Y: Capacity) -> bool: 
+    # Check if set X is in set Y
+    x_keys = X.X
+    y_keys = Y.X
+
+    if set(x_keys).issubset(set(y_keys)):
+        # print(f"Set {x_keys} is a subset of set {y_keys}.")
+        # Check if the values of X are less than or equal to the values of Y
+        if len(x_keys) == len(y_keys):
+            return True 
+        elif len(x_keys) < len(y_keys):
+            if X.mu <= Y.mu:
+                return True
+    elif set(y_keys).issubset(set(x_keys)):
+        # print(f"Set {y_keys} is a subset of set {x_keys}.")
+        # Check if the values of Y are less than or equal to the values of X
+        if len(x_keys) == len(y_keys):
+            return True 
+        elif len(x_keys) > len(y_keys):
+            if Y.mu <= X.mu:
+                return True
+    return False
