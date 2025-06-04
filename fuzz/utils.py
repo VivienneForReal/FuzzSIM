@@ -3,7 +3,12 @@
 
 from typing import List, Tuple
 import numpy as np
-from itertools import combinations
+from itertools import combinations, chain
+from typing import List
+
+def powerset(s):
+    """Generate all subsets of a given set."""
+    return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
 
 # Synchronizer
 def sync_lst_to_float_lst(lst: List) -> np.ndarray:
@@ -77,7 +82,4 @@ def enumerate_tup(lst):
     """
     Enumerate the tuples in the list.
     """
-    tmp = []
-    for i in range(len(lst)+1):
-        tmp += list(combinations(lst, i))
-    return tmp
+    return powerset(lst)

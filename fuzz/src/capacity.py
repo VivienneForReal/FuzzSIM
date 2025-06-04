@@ -5,6 +5,10 @@ from typing import List
 import numpy as np
 import random
 random.seed(42)
+from itertools import combinations
+from typing import Dict, FrozenSet, List
+
+from fuzz.utils import powerset
 
 class Capacity:
     """
@@ -38,10 +42,12 @@ def locate_capacity(X: List[int], capacity: List[Capacity]) -> float:
     :return: capacity of the fuzzy set.
     """
     for i in range(len(capacity)):
+        # print(X, capacity[i].X, set(X) == set(capacity[i].X))
         if set(X) == set(capacity[i].X):
+            # print("Found capacity:", capacity[i].X, capacity[i].get_capacity())
             return capacity[i].get_capacity()
         
-    raise ValueError("Capacity not found for the given values.")
+    return 0.0      # Suppose that the capacity is 0 if not found
     
 # Functions for capacity computation
 def generate_capacity_unit(lst_val: List[int], nb_x: int) -> float:
@@ -57,7 +63,7 @@ def generate_capacity_unit(lst_val: List[int], nb_x: int) -> float:
         return 1
     else: 
         return np.random.rand()
-
+    
 def generate_capacity(lst_val: List[int]) -> List[Capacity]:
     """
     Generate the capacity of the dataset
@@ -75,3 +81,87 @@ def generate_capacity(lst_val: List[int]) -> List[Capacity]:
     for i in range(len(tmp)):
         tmp[i] = Capacity(lst_val[i], tmp[i])
     return tmp
+    
+
+
+
+
+
+"""
+Note: 
+- As for present, we will use a random 2-additive Möbius measure to generate the capacity instead of using the previous method.
+"""
+def generate_mobius(feature_indices: List[int]) -> List[Capacity]:
+    """Generate a random 2-additive Möbius measure."""
+    m = {}
+    # Singleton terms
+    for i in feature_indices:
+        m[frozenset([i])] = np.random.rand()
+    
+    # Pairwise interaction terms (2-additive)
+    for i, j in combinations(feature_indices, 2):
+        m[frozenset([i, j])] = np.random.rand()
+
+    m[frozenset()] = 0.0
+
+    tmp = []
+    # Convert to fit with Capacity implementation
+    for k, v in m.items():
+        tmp.append(Capacity(list(k), v))
+    return tmp
+
+def mobius_to_capacity(m: List[Capacity], feature_indices: List[int]) -> List[Capacity]:
+    """
+    Convert Möbius transform to capacity.
+    m: mobius 
+    """
+    mu = []
+    for subset in powerset(feature_indices):
+        fs_subset = frozenset(subset)
+        total = 0.0
+        for B in powerset(subset):
+            fs_B = list(frozenset(B))
+            tmp = locate_capacity(X=fs_B, capacity=m)
+            # print(f"fs_B: {fs_B}, tmp: {tmp}")
+            # if fs_B in m:
+            total += tmp
+        mu.append(Capacity(list(fs_subset), total))
+
+    def norm_capacity(capacity: List[Capacity]) -> List[Capacity]:
+        """Normalize the capacity."""
+        lst = [c.mu for c in capacity if c.mu is not None]
+        min_lst = min(lst)
+        max_lst = max(lst)
+        # Normalize to [0, 1]
+        lst = norm(lst)
+        tmp = []
+        for i in range(len(lst)):
+            tmp.append(Capacity(capacity[i].X, lst[i]))
+        return tmp
+    return norm_capacity(mu)
+
+
+# Function for Mobius manip
+def mutate(mobius, mutation_rate=0.1):
+    new_mobius = mobius.copy()
+    for key in mobius:
+        if np.random.rand() < mutation_rate:
+            new_mobius[key] = np.clip(mobius[key] + np.random.uniform(-0.1, 0.1), 0, 1)
+    return new_mobius
+
+def crossover(parent1, parent2):
+    """Suppose that 2 parents have the same structure with different capacities."""
+    child = []
+    # Get len parents 
+    if len(parent1) != len(parent2):
+        raise ValueError("Parents must have the same length")
+    len_parents = len(parent1)
+    for i in range(len_parents):
+        c_1 = parent1[i].mu
+        c_2 = parent2[i].mu
+        c_c = random.choice([c_1, c_2])
+        if c_c == c_1:
+            child.append(Capacity(parent1[i].X, c_1))
+        else:
+            child.append(Capacity(parent2[i].X, c_2))
+    return child
