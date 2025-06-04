@@ -190,4 +190,27 @@ def monotonic_check_unit(X: Capacity, Y: Capacity) -> bool:
         elif len(x_keys) > len(y_keys):
             if Y.mu <= X.mu:
                 return True
+            
+    else: 
+        if len(x_keys) == len(y_keys) and set(x_keys) != set(y_keys):
+            return True
+        elif len(x_keys) < len(y_keys):
+            if X.mu <= Y.mu:
+                return True
+        elif len(x_keys) > len(y_keys):
+            if Y.mu <= X.mu:
+                return True
     return False
+
+def monotonic_check(X: List[Capacity]) -> bool:
+    """
+    Check if the capacities in the list are monotonic.
+    """
+    for i in range(len(X) - 1):
+        if not monotonic_check_unit(X[i], X[i + 1]):
+            print(f"Monotonicity check failed between {X[i].X} and {X[i + 1].X}")
+            print(f"X: {X[i].X}, mu: {X[i].mu}")
+            print(f"Y: {X[i + 1].X}, mu: {X[i + 1].mu}")
+            print()
+            return False
+    return True
