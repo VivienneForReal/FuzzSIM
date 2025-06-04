@@ -203,16 +203,17 @@ def monotonic_check_unit(X: Capacity, Y: Capacity) -> bool:
                 return True
     return False
 
-def is_monotonic(X: List[Capacity]) -> bool:
+def is_monotonic(X: List[Capacity], verbose = False) -> bool:
     """
     Check if the capacities in the list are monotonic.
     """
     for i in range(len(X) - 1):
         if not monotonic_check_unit(X[i], X[i + 1]):
-            print(f"Monotonicity check failed between {X[i].X} and {X[i + 1].X}")
-            print(f"X: {X[i].X}, mu: {X[i].mu}")
-            print(f"Y: {X[i + 1].X}, mu: {X[i + 1].mu}")
-            print()
+            if verbose:
+                print(f"Monotonicity check failed between {X[i].X} and {X[i + 1].X}")
+                print(f"X: {X[i].X}, mu: {X[i].mu}")
+                print(f"Y: {X[i + 1].X}, mu: {X[i + 1].mu}")
+                print()
             return False
     return True
 
