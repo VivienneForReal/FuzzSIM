@@ -105,6 +105,7 @@ def generate_mobius(feature_indices: List[int], n_additive: int = 2) -> List[Cap
     # Include subsets of size 1 to n_additive
     for k in range(1, n_additive + 1):
         for comb in combinations(feature_indices, k):
+            # Randomly generate value for mobius (between 0 and 1)
             m[frozenset(comb)] = np.random.rand()
     
     # Convert to list of Capacity objects
