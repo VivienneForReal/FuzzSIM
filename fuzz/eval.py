@@ -37,12 +37,16 @@ def leave_one_out(C, DS, time_counter=False):
     
 
 # Fuzzy verion
-def FuzzLOO(C, DS, mu, time_counter=False):
+def FuzzLOO(DS, mu, sim = S1, choquet_version='d_choquet', p=1, q=1, time_counter=False):
     """ Classifieur * tuple[array, array] -> float
     """
     ###################### A COMPLETER 
     pt = 0
     Xm, Ym = DS
+
+    input_dimension= Xm[0].shape[0]
+
+    C = KNNFuzz(input_dimension = input_dimension, mu=mu, sim=sim, choquet_version=choquet_version, p=p, q=q)
 
     if time_counter:
         tic = time.time()

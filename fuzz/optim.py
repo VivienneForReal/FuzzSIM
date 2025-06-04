@@ -8,8 +8,11 @@ from fuzz.eval import FuzzLOO
 from fuzz.src.capacity import generate_capacity
 from fuzz.src.base import Optim
 import pyswarms as ps
+
 from fuzz.utils import enumerate_permute_unit
 from fuzz.src.knn import KNNFuzz
+from fuzz.src.sim import S1, S2, S3
+from fuzz.src.capacity import *
 
 # Version 1: Optimization of Choquet capacity using softmax
 class PSO(Optim):
@@ -69,26 +72,26 @@ def softmax(x: np.ndarray) -> np.ndarray:
     return e_x / e_x.sum()
 
 
-def fitness_function(X: np.ndarray, DS: Tuple[np.ndarray, np.ndarray], C) -> np.ndarray:
+def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarray], sim = S1, choquet_version='d_choquet', p=1, q=1, time_counter=False) -> np.ndarray:
     """
-    Objective function for PySwarms:
-    - X is a 2D array of shape (n_particles, n_features)
-    - Each row is a μ vector
+    Objective function for optimizing Möbius measures:
+    - capacities_list: list of Möbius measures represented as capacities
+    - DS: Tuple (X_data, y_data)
+    - C: Choquet similarity function (e.g., Choquet_classic)
+    
     Returns:
-    - 1D array of negative LOO accuracy (minimize)
+    - 1D array of negative LOO accuracy (to minimize)
     """
     results = []
-    for x in X:
-        # Apply softmax to get valid capacity values that sum to 1
-        X_p = softmax(x)
-        
-        # Create capacity from vector
-        capacity = generate_capacity(enumerate_permute_unit(X_p))
+    for capacity in capacities_list:
 
-        # Evaluate LOO accuracy
-        acc = FuzzLOO(C, DS, capacity)
-        
-        # We minimize in PySwarms, so use negative accuracy
+        if not is_monotonic(capacity):
+            results.append(float('inf'))  # Penalize non-monotonic capacity
+            continue
+
+        acc = FuzzLOO(DS, capacity, sim=sim, choquet_version=choquet_version, p=p, q=q, time_counter=time_counter)
+
+        # negative accuracy for minimization
         results.append(-acc)
-        
+
     return np.array(results)
