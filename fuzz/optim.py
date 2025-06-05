@@ -2,13 +2,11 @@
 # @author: H. T. Duong V.
 
 import numpy as np
-from fuzz.src.capacity import Capacity
 from typing import List, Dict, Any, Tuple, Callable
-from fuzz.eval import FuzzLOO
-from fuzz.src.capacity import generate_capacity
-from fuzz.src.base import Optim
 import pyswarms as ps
+from fuzz.eval import FuzzLOO
 
+from fuzz.src.base import Optim
 from fuzz.utils import enumerate_permute_unit
 from fuzz.src.knn import KNNFuzz
 from fuzz.src.sim import S1, S2, S3
@@ -72,7 +70,7 @@ def softmax(x: np.ndarray) -> np.ndarray:
     return e_x / e_x.sum()
 
 
-def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarray], sim = S1, choquet_version='d_choquet', p=1, q=1, time_counter=False) -> np.ndarray:
+def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarray], sim = S1, choquet_version='d_choquet', p=1, q=1, time_counter=False, verbose=False) -> np.ndarray:
     """
     Objective function for optimizing Möbius measures:
     - capacities_list: list of Möbius measures represented as capacities
@@ -86,7 +84,10 @@ def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarr
     i = 0
     for capacity in capacities_list:
         i += 1
-        print(f"Processing capacity {i}/{len(capacities_list)}...")
+        if verbose: 
+            print(f"Processing capacity {i}/{len(capacities_list)}...")
+            tmp = [capacity[j].mu for j in range(len(capacity))]
+            print(f"Mobius {i}: {tmp}\n")
         if not is_monotonic(capacity):
             results.append(float('inf'))  # Penalize non-monotonic capacity
             continue
@@ -97,4 +98,3 @@ def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarr
         results.append(-acc)
 
     return np.array(results)
-
