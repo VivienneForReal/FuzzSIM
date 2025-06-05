@@ -83,8 +83,10 @@ def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarr
     - 1D array of negative LOO accuracy (to minimize)
     """
     results = []
+    i = 0
     for capacity in capacities_list:
-
+        i += 1
+        print(f"Processing capacity {i}/{len(capacities_list)}...")
         if not is_monotonic(capacity):
             results.append(float('inf'))  # Penalize non-monotonic capacity
             continue
@@ -95,3 +97,4 @@ def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarr
         results.append(-acc)
 
     return np.array(results)
+
