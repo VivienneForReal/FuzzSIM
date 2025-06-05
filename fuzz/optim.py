@@ -84,10 +84,6 @@ def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarr
     i = 0
     for capacity in capacities_list:
         i += 1
-        if verbose: 
-            print(f"Processing capacity {i}/{len(capacities_list)}...")
-            tmp = [capacity[j].mu for j in range(len(capacity))]
-            print(f"Mobius {i}: {tmp}\n")
         if not is_monotonic(capacity):
             results.append(float('inf'))  # Penalize non-monotonic capacity
             continue
@@ -96,5 +92,11 @@ def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarr
 
         # negative accuracy for minimization
         results.append(-acc)
+
+        if verbose: 
+            print(f"Processing capacity {i}/{len(capacities_list)}...")
+            tmp = [capacity[j].mu for j in range(len(capacity))]
+            print(f"Capacities {i}: {tmp}")
+            print(f"Accuracy: {acc:.4f}\n")
 
     return np.array(results)
