@@ -70,7 +70,7 @@ def softmax(x: np.ndarray) -> np.ndarray:
     return e_x / e_x.sum()
 
 
-def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarray], sim = S1, choquet_version='d_choquet', p=1, q=1, time_counter=False, verbose=False) -> np.ndarray:
+def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarray], sim = S1, choquet_version='linear', p=1, q=1, time_counter=False, verbose=False) -> np.ndarray:
     """
     Objective function for optimizing Möbius measures:
     - capacities_list: list of Möbius measures represented as capacities
@@ -82,11 +82,13 @@ def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarr
     """
     results = []
     i = 0
+    # Replace capacities computation with Mobius instead
+    # Isolate Classifier outside please
     for capacity in capacities_list:
         i += 1
-        if not is_monotonic(capacity):
-            results.append(float('inf'))  # Penalize non-monotonic capacity
-            continue
+        # if not is_monotonic(capacity):
+        #     results.append(float('inf'))  # Penalize non-monotonic capacity
+        #     continue
 
         acc = FuzzLOO(DS, capacity, sim=sim, choquet_version=choquet_version, p=p, q=q, time_counter=time_counter)
 
