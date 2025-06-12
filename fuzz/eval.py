@@ -7,6 +7,7 @@ import time
 
 from fuzz.src.knn import KNNFuzz
 from fuzz.src.sim import FuzzSIM, S1,S2,S3
+from fuzz.dataloader import crossval
 
 def leave_one_out(C, DS, time_counter=False):
     """ Classifieur * tuple[array, array] -> float
@@ -51,14 +52,15 @@ def FuzzLOO(DS, mu, sim = S1, choquet_version='d_choquet', p=1, q=1, time_counte
     if time_counter:
         tic = time.time()
     for i in range(len(Xm)):
-        Xtest, Ytest = Xm[i], Ym[i]
+        # Xtest, Ytest = Xm[i], Ym[i]
         
-        Xapp, Yapp = np.array(list(Xm[:i])+list(Xm[i+1:])), np.array(list(Ym[:i])+list(Ym[i+1:]))
+        # Xapp, Yapp = np.array(list(Xm[:i])+list(Xm[i+1:])), np.array(list(Ym[:i])+list(Ym[i+1:]))
+        Xapp, Yapp, Xtest, Ytest = crossval((Xm, Ym), train_size=0.8, random_state=i)
 
         cl = copy.deepcopy(C)
         cl.train(desc_set=Xapp, label_set=Yapp)
 
-        if cl.accuracy([Xtest], [Ytest]) == 1: pt += 1
+        if cl.accuracy(Xtest, Ytest) == 1: pt += 1
 
     if time_counter:
         toc = time.time()
