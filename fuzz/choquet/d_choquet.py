@@ -26,7 +26,7 @@ def restricted_dissim(X1: float, X2: float, p: int = 1, q: int = 1):
         return 1
 
     # Case 3
-    return np.abs(np.power(X1, p) - np.power(X2, p)) ** (1/q)
+    return float(np.abs(np.power(X1, p) - np.power(X2, p)) ** (1/q))
 
 def d_Choquet_integral(X: np.ndarray, mu: List[Capacity], p: float = 1.0, q: float = 1.0, verbose: bool = False):
     """

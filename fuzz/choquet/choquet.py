@@ -9,6 +9,7 @@ from typing import List
 
 from fuzz.choquet.classic import Choquet_classic
 from fuzz.choquet.d_choquet import *
+from fuzz.choquet.linear_d_choquet import d_choquet_linear
 
 class Choquet: 
     """
@@ -35,6 +36,10 @@ class Choquet:
             if p is None or q is None:
                 raise ValueError("p and q must be provided for D-Choquet integral.")
             self.choquet = self.d_Choquet_integral(p = p, q = q)
+        elif version == "linear":
+            if p is None or q is None:
+                raise ValueError("p and q must be provided for D-Choquet linear integral.")
+            self.choquet = self.d_Choquet_linear(p = p, q = q)
         else:
             raise ValueError("Unsupported Choquet version provided.")
     
@@ -51,6 +56,17 @@ class Choquet:
         :return: The D-Choquet integral value.
         """
         return d_Choquet_integral(self.X, self.capacity, p=p, q=q, verbose=verbose)
+    
+    def d_Choquet_linear(self, p: float = 1.0, q: float = 1.0, verbose: bool = False) -> float:
+        """
+        Calculate the linear D-Choquet integral of the fuzzy set.
+
+        :param p: Parameter p for the D-Choquet integral.
+        :param q: Parameter q for the D-Choquet integral.
+        :param verbose: If True, print detailed information about the calculation.
+        :return: The linear D-Choquet integral value.
+        """
+        return d_choquet_linear(self.X, self.capacity, p=p, q=q, verbose=verbose)
 
 # Basic pre-operations
 def s_intersection(X: np.ndarray, Y: np.ndarray, mode: str = 'P') -> np.ndarray:
