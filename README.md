@@ -3,31 +3,33 @@
 ## Project structure
 ```txt
 FuzzSIM/
-│── src/            
-│   ├── classif/
-│   │   ├── base.py
-│   │   ├── knn.py      
-│   │   ├── eval.py  
-│   ├── fuzz/     
-│   │   ├── capacity.py              
-│   │   ├── choquet.py              
+│── fuzz/            
+│   ├── choquet/
+│   │   ├── __init__.py
+│   │   ├── choquet.py
+│   │   ├── classic.py      
+│   │   ├── d_choquet.py  
+│   │   ├── linear_d_choquet.py  
+│   ├── src/     
+│   │   ├── __init__.py
+│   │   ├── base.py 
+│   │   ├── knn.py              
 │   │   ├── norm.py              
 │   │   ├── sim.py              
-│   ├── utils/     
-│   │   ├── dataloader.py              
-│   │   ├── set.py              
-│   │   ├── utils.py              
-│   │   ├── visualization.py    
-│   ├── fsim.py
-│── configs/               
-│   ├── config.yml    
-│── bin/                 
+│   ├── __init__.py
+│   ├── set.py              
+│   ├── dataloader.py              
+│   ├── eval.py    
+│   ├── optim.py
+│   ├── utils.py 
+│── configs/                
+│   ├── configs.yml  
 │── scripts/                
-│   ├── launch.sh     
-│── environment.yml
-│── README.md               
-│── .gitignore  
-│── .gitattributes             
+│   ├── setup_env.sh     
+│── __init__.py
+│── requirements.txt
+│── LICENSE
+│── README.md                      
 ```
 
 

@@ -1,0 +1,4 @@
+seed: 42
+train_size: 0.8
+
+nb_total_mobius: 5
