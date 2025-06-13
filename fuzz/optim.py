@@ -4,7 +4,7 @@
 import numpy as np
 from typing import List, Dict, Any, Tuple, Callable
 import pyswarms as ps
-from fuzz.eval import FuzzLOO
+from fuzz.eval import FuzzLOO, crossval
 
 from fuzz.src.base import Optim
 from fuzz.utils import enumerate_permute_unit
@@ -70,7 +70,7 @@ def softmax(x: np.ndarray) -> np.ndarray:
     return e_x / e_x.sum()
 
 
-def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarray], sim = S1, choquet_version='linear', p=1, q=1, time_counter=False, verbose=False) -> np.ndarray:
+def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarray], sim = S1, choquet_version='linear', p=1, q=1, time_counter=False, verbose=False, eval_type='loo', sim_agent='mobius') -> np.ndarray:
     """
     Objective function for optimizing Möbius measures:
     - capacities_list: list of Möbius measures represented as capacities
@@ -86,11 +86,18 @@ def fitness_function(capacities_list: np.ndarray, DS: Tuple[np.ndarray, np.ndarr
     # Isolate Classifier outside please
     for capacity in capacities_list:
         i += 1
-        # if not is_monotonic(capacity):
-        #     results.append(float('inf'))  # Penalize non-monotonic capacity
-        #     continue
+        if sim_agent != 'mobius':
+            if not is_monotonic(capacity):
+                results.append(float('inf'))  # Penalize non-monotonic capacity
+                continue
 
-        acc = FuzzLOO(DS, capacity, sim=sim, choquet_version=choquet_version, p=p, q=q, time_counter=time_counter)
+        if eval_type == 'loo':
+            acc = FuzzLOO(DS, capacity, sim=sim, choquet_version=choquet_version, p=p, q=q, time_counter=time_counter)
+        elif eval_type == 'crossval':
+            Xapp, Yapp, Xtest, Ytest = crossval(DS, train_size=0.8, random_state=42)
+            cl = KNNFuzz(input_dimension=Xapp[0].shape[0], mu=capacity, sim=sim, choquet_version=choquet_version, p=p, q=q)
+            cl.train(Xapp, Yapp)
+            acc = cl.accuracy(Xtest, Ytest)
 
         # negative accuracy for minimization
         results.append(-acc)
