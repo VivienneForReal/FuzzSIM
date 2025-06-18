@@ -1,0 +1,45 @@
+1. Initialization Phase
+------------------------
+- Define algorithm parameters:
+    • max_iterations
+    • step_size
+    • tolerance
+    • num_restarts (for multiple starting points)
+- Set fixed hyperparameters for evaluation (e.g., p, q, similarity type)
+- Initialize best global result variables
+- Choose initial candidate solution (random or predefined)
+
+2. Multi-Restart Loop (Repeat N times)
+--------------------------------------
+For each restart:
+  a. Evaluate the initial solution's performance (fitness)
+  b. Start iterative hill climbing search
+
+3. Hill Climbing Iteration Loop
+-------------------------------
+For each iteration:
+  a. Generate neighbors of the current solution:
+      • Perturb each parameter individually
+      • Optionally perturb all parameters globally
+  b. Clip or validate perturbed values (e.g., mu in [0, 1])
+  c. Evaluate each neighbor's fitness
+  d. Select the best neighbor
+  e. If it improves over the current solution:
+      • Update current solution
+      • Record improvement
+
+  f. Optional: Adaptive step size adjustment
+     • If recent improvements are minimal, reduce step size
+
+  g. Stop if no improvement (convergence)
+
+4. After Each Restart
+----------------------
+- Compare result with the best so far
+- Save if it's better than previous best
+
+5. Post Optimization
+---------------------
+- Report the best result from all restarts
+- Optionally visualize the convergence (e.g., plot accuracy over iterations)
+- Re-evaluate final solution for verification

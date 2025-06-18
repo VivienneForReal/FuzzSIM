@@ -148,7 +148,7 @@ def mobius_to_capacity(m: List[Capacity], feature_indices: List[int], type_norm=
             for i in range(len(lst)):
                 tmp.append(Capacity(capacity[i].X, lst[i]))
         return tmp
-    return norm_capacity(mu, type=type_norm)
+    return mu # norm_capacity(mu, type=type_norm)
 
 
 # Function for Mobius manip
