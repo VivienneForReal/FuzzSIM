@@ -302,6 +302,7 @@ plt.title('Hill Climbing Convergence - Single Möbius Optimization')
 plt.xlabel('Iteration')
 plt.ylabel('LOO Accuracy')
 plt.grid(True)
+plt.tight_layout()
 # plt.show()
 # print("Convergence plot displayed")
 
