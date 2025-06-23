@@ -132,7 +132,7 @@ def mobius_to_capacity(m: List[Capacity], feature_indices: List[int], type_norm=
     def norm_capacity(capacity: List[Capacity], type=type_norm) -> List[Capacity]:
         """Normalize the capacity."""
         if type == 'min-max':
-            print("Im min-max normalization")
+            # print("Im min-max normalization")
             lst = [c.mu for c in capacity if c.mu is not None]
             # Normalize to [0, 1]
             lst = norm(lst)
@@ -141,14 +141,14 @@ def mobius_to_capacity(m: List[Capacity], feature_indices: List[int], type_norm=
                 tmp.append(Capacity(capacity[i].X, lst[i]))
 
         else: 
-            print("Im basic normalization")
+            # print("Im basic normalization")
             lst = [c.mu for c in capacity if c.mu is not None]
             lst = [c / max(lst) for c in lst]  # Normalize to [0, 1]
             tmp = []
             for i in range(len(lst)):
                 tmp.append(Capacity(capacity[i].X, lst[i]))
         return tmp
-    return mu # norm_capacity(mu, type=type_norm)
+    return norm_capacity(mu, type=type_norm)
 
 
 # Function for Mobius manip

@@ -5,6 +5,14 @@ from typing import List, Tuple
 import numpy as np
 from itertools import combinations, chain
 from typing import List
+import psutil
+import os
+
+
+# Resources tracker
+def get_memory_usage_mb():
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss / 1024 ** 2  # in MB
 
 def powerset(s):
     """Generate all subsets of a given set."""
