@@ -313,3 +313,17 @@ plt.ylabel('True Label')
 plt.title('Confusion Matrix')
 plt.tight_layout()
 plt.savefig(os.path.join(results_dir, timestamp, 'confusion_matrix_knn_fuzz_iris.png'))
+
+
+
+r = []
+for i in range(len(hill_climbing_best_mobius)):
+    r.append({
+        'index': i,
+        'label': hill_climbing_best_mobius[i].X,
+        'capacity_value': hill_climbing_best_mobius[i].mu,
+    })
+
+# Save results to a txt file
+results_df = pd.DataFrame(r)
+results_df.to_csv(os.path.join(results_dir, timestamp, 'best_capacity.txt'), index=False)
