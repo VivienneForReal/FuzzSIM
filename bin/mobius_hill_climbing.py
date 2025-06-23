@@ -41,9 +41,9 @@ if not os.path.exists(results_dir):
     os.makedirs(results_dir)
 
 type="mobius"
-timestamp = os.path.join(results_dir, f"{timestamp}_{type}")
-if not os.path.exists(timestamp):
-    os.makedirs(timestamp)
+timestamp = f"{type}_{timestamp}"
+if not os.path.exists(os.path.join(results_dir, timestamp)):
+    os.makedirs(os.path.join(results_dir, timestamp))
 
 # Load data 
 iris_data = load_iris()

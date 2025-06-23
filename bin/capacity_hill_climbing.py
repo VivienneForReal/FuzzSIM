@@ -41,9 +41,9 @@ if not os.path.exists(results_dir):
     os.makedirs(results_dir)
 
 type="capacity"
-timestamp = os.path.join(results_dir, f"{timestamp}_{type}")
-if not os.path.exists(timestamp):
-    os.makedirs(timestamp)
+timestamp = f"{type}_{timestamp}"
+if not os.path.exists(os.path.join(results_dir, timestamp)):
+    os.makedirs(os.path.join(results_dir, timestamp))
 
 # Load data 
 iris_data = load_iris()
@@ -61,7 +61,7 @@ get_memory_usage_mb()
 max_iterations = 100
 step_size = 0.1
 tolerance = 1e-6
-num_restarts = 1  # Multiple random starts
+num_restarts = 5  # Multiple random starts
 
 # Fixed hyperparameters (you can adjust these)
 p_val = .25
@@ -232,6 +232,7 @@ plt.plot(global_best_history, linestyle='dotted', color='b')
 plt.title('Hill Climbing Convergence - Single Capacity Optimization')
 plt.xlabel('Iteration')
 plt.ylabel('LOO Accuracy')
+plt.tight_layout()
 plt.grid(True)
 # plt.show()
 # print("Convergence plot displayed")
