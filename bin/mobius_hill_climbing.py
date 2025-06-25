@@ -19,6 +19,7 @@ import psutil
 from sklearn.metrics import confusion_matrix
 plt.style.use('_mpl-gallery')
 os.chdir("/Users/hoangthuyduongvu/Desktop/FuzzSIM")
+import argparse
 
 # Import personalized libraries
 from fuzz.src.capacity import *
@@ -32,6 +33,23 @@ from fuzz.eval import leave_one_out
 from fuzz.dataloader import *
 from fuzz.choquet.d_choquet import *
 
+# Define argument parser
+parser = argparse.ArgumentParser(description="Hill Climbing optimization for Möbius measures")
+parser.add_argument('--sim', type=str, default='S2', help='Similarity measure to use (S1, S2, S3)')
+parser.add_argument('--data', type=str, default='iris', help='Dataset to use (iris, penguins)')
+
+
+# Parse arguments
+args = parser.parse_args()
+if args.sim == 'S1':
+    sim = S1
+elif args.sim == 'S2':
+    sim = S2
+elif args.sim == 'S3':
+    sim = S3
+else:
+    raise ValueError("Invalid similarity measure. Choose from 'S1', 'S2', or 'S3'.")
+
 # Use timestamps for saving results
 timestamp = time.strftime("%Y%m%d-%H%M%S")
 
@@ -41,17 +59,26 @@ if not os.path.exists(results_dir):
     os.makedirs(results_dir)
 
 type="mobius"
-timestamp = f"{type}_{timestamp}"
+timestamp = f"{timestamp}_{args.data}_{type}_{args.sim}"
 if not os.path.exists(os.path.join(results_dir, timestamp)):
     os.makedirs(os.path.join(results_dir, timestamp))
 
-# Load data 
-iris_data = load_iris()
-iris = pd.DataFrame(data=iris_data.data, columns=iris_data.feature_names)
-iris['target'] = iris_data.target
-data, labels = iris.iloc[:, :-1].values, iris.iloc[:, -1].values
-data = batch_norm(np.array(data, dtype=np.float32))
-data[:5]
+if args.data == 'iris':
+    # Load data 
+    iris_data = load_iris()
+    iris = pd.DataFrame(data=iris_data.data, columns=iris_data.feature_names)
+    iris['target'] = iris_data.target
+    data, labels = iris.iloc[:, :-1].values, iris.iloc[:, -1].values
+    data = batch_norm(np.array(data, dtype=np.float32))
+    # data[:5]
+elif args.data == 'gaussian':
+    data, labels = dynamic_generate_positive_gaussian_data(
+        dim=3,
+        nb_classes=3,
+        nb_points_per_class=100,
+        seed=42
+    )
+    data = batch_norm(data)
 
 # Generate all possible mobius for training
 features = list(range(len(data[0])))    # encode features as integers
@@ -109,7 +136,7 @@ num_restarts = 5  # Multiple random starts
 # Fixed hyperparameters (you can adjust these)
 p_val = .25
 q_val = 1.
-sim = S2  # your similarity measure
+# sim = S2  # your similarity measure
 choquet_version = 'linear'
 verbose = True
 eval_type = 'loo'  # using LOO as specified
@@ -294,7 +321,7 @@ for i in range(len(data)):
 
 # Save results to a txt file
 results_df = pd.DataFrame(results)
-results_df.to_csv(os.path.join(results_dir, timestamp, 'choquet_mobius_results_iris.txt'), index=False)
+results_df.to_csv(os.path.join(results_dir, timestamp, f'choquet_mobius_results_{args.data}.txt'), index=False)
 
 plt.figure(figsize=(10, 6))
 plt.plot(global_best_history, linestyle='dotted', color='b')
@@ -306,7 +333,17 @@ plt.tight_layout()
 # plt.show()
 # print("Convergence plot displayed")
 
-plt.savefig(os.path.join(results_dir, timestamp, 'hill_climbing_convergence_plot_iris.png'))
+# Save convergence data
+conv = []
+for i in range(len(global_best_history)):
+    conv.append({
+        'iteration': i,
+        'accuracy': global_best_history[i]
+    })
+conv_df = pd.DataFrame(conv)
+conv_df.to_csv(os.path.join(results_dir, timestamp, f'hill_climbing_convergence_{args.data}_acc.txt'), index=False)
+
+plt.savefig(os.path.join(results_dir, timestamp, f'hill_climbing_convergence_plot_{args.data}.png'))
 
 # Save pairs + associated mobius / capacity 
 lst_X = [bst_acc[i].X for i in range(len(bst_acc))]
@@ -338,26 +375,26 @@ for i in range(len(lst_X)):
 
 # Save results to a txt file
 results_df = pd.DataFrame(r)
-results_df.to_csv(os.path.join(results_dir, timestamp, 'best_mob_cap_iris.txt'), index=False)
+results_df.to_csv(os.path.join(results_dir, timestamp, f'best_mob_cap_{args.data}.txt'), index=False)
 
 plt.figure(figsize=(10, 6))
 plt.scatter(res_mobius, res_capacity, c=labels, cmap='viridis', alpha=0.7)
 plt.colorbar(label='Target Class')
-plt.title('Choquet Möbius vs Choquet Capacity Values for Iris Dataset')
+plt.title(f'Choquet Möbius vs Choquet Capacity Values for {args.data.capitalize()} Dataset')
 plt.xlabel('Choquet Möbius Value')
 plt.ylabel('Choquet Capacity Value')
 plt.grid(True)
-plt.savefig(os.path.join(results_dir, timestamp, 'choquet_mobius_vs_capacity_plot_iris.png'))
+plt.savefig(os.path.join(results_dir, timestamp, f'choquet_mobius_vs_capacity_plot_{args.data}.png'))
 
 plt.figure(figsize=(10, 6))
 plt.scatter(labels, res_capacity, c=labels, cmap='viridis', alpha=0.7)
 plt.colorbar(label='Target Class')
-plt.title('Capacity range for each class in Iris Dataset')
+plt.title(f'Capacity range for each class in {args.data.capitalize()} Dataset')
 plt.xlabel('Ground Truth')
 plt.ylabel('Predicted Capacity Value')
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(os.path.join(results_dir, timestamp, 'capacity_range_plot_iris.png'))
+plt.savefig(os.path.join(results_dir, timestamp, f'capacity_range_plot_{args.data}.png'))
 
 knn = KNNFuzz(input_dimension=len(data[0]),mu=bst_acc, sim=S2, p=p_val, q=q_val, k=3, choquet_version='d_choquet')
 knn.train(data, labels)
@@ -389,12 +426,12 @@ plt.bar(x + width/2, incorrect_counts, width, label='Incorrect', color='red')
 
 plt.xticks(x, [f'Class {int(c)}' for c in classes])
 plt.ylabel('Number of Samples')
-plt.title('Correct vs Incorrect Predictions per Class for KNNFuzz on Iris Dataset')
+plt.title(f'Correct vs Incorrect Predictions per Class for KNNFuzz on {args.data.capitalize()} Dataset')
 plt.legend()
 plt.grid(axis='y', linestyle='--', alpha=0.6)
 plt.tight_layout()
 # plt.show()
-plt.savefig(os.path.join(results_dir, timestamp, 'knn_fuzz_correct_vs_incorrect_iris.png'))
+plt.savefig(os.path.join(results_dir, timestamp, f'knn_fuzz_correct_vs_incorrect_{args.data}.png'))
 
 
 # Compute confusion matrix
@@ -412,4 +449,4 @@ plt.xlabel('Predicted Label')
 plt.ylabel('True Label')
 plt.title('Confusion Matrix')
 plt.tight_layout()
-plt.savefig(os.path.join(results_dir, timestamp, 'confusion_matrix_knn_fuzz_iris.png'))
+plt.savefig(os.path.join(results_dir, timestamp, f'confusion_matrix_knn_fuzz_{args.data}.png'))
