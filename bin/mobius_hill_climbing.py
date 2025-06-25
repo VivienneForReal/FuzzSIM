@@ -18,7 +18,7 @@ import copy
 import psutil
 from sklearn.metrics import confusion_matrix
 plt.style.use('_mpl-gallery')
-os.chdir("/Users/hoangthuyduongvu/Desktop/FuzzSIM")
+# os.chdir("/Users/hoangthuyduongvu/Desktop/FuzzSIM")
 import argparse
 
 # Import personalized libraries
