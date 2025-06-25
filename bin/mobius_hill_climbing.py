@@ -384,6 +384,7 @@ plt.title(f'Choquet Möbius vs Choquet Capacity Values for {args.data.capitalize
 plt.xlabel('Choquet Möbius Value')
 plt.ylabel('Choquet Capacity Value')
 plt.grid(True)
+plt.tight_layout()
 plt.savefig(os.path.join(results_dir, timestamp, f'choquet_mobius_vs_capacity_plot_{args.data}.png'))
 
 plt.figure(figsize=(10, 6))
