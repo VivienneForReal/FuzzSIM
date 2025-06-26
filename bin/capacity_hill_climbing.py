@@ -67,6 +67,29 @@ elif args.data == 'gaussian':
     )
     data = batch_norm(data)
 
+elif args.data == 'penguins':
+    penguins = load_penguins()
+
+    # Encode
+    le = LabelEncoder()
+    le.fit(penguins['island'])
+    penguins['island'] = le.transform(penguins['island'])
+
+    le.fit(penguins['sex'])
+    penguins['sex'] = le.transform(penguins['sex'])
+
+    le.fit(penguins['species'])
+    penguins['species'] = le.transform(penguins['species'])
+
+    # Remove missing values
+    penguins = penguins.dropna()  # remove rows with missing values
+    X = penguins.drop(columns='species')  # features
+    y = penguins['species']  # target
+
+    # Turn into array
+    data = np.array(X)
+    labels = np.array(y)
+
 # Use timestamps for saving results
 timestamp = time.strftime("%Y%m%d-%H%M%S")
 
